@@ -47,4 +47,15 @@ class LoginController extends Controller
                 return '/dashboard';
         }
     }
+
+    public function logout(Request $request)
+    {
+        $guard = Auth::getDefaultDriver();
+        Auth::guard($guard)->logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('login');
+    }
 } 

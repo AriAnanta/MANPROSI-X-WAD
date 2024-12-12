@@ -1,18 +1,24 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Manager extends Model
+class Manager extends Authenticatable
 {
     use HasFactory;
+    use Notifiable;
     protected $fillable = [
         'kode_manager',
         'nama_manager',
         'email',
         'password', 
         'no_telepon'
+    ];
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
     public function emisi_carbon(){
         return $this->hasMany(EmisiCarbon::class,'kode_manager');

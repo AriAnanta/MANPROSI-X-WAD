@@ -36,17 +36,21 @@ class RegisterController extends Controller
             'no_telepon' => 'required|string|max:15'
         ]);
 
-        $pengguna = Pengguna::create([
-            'kode_user' => 'USR-' . Str::random(6),
-            'nama_user' => $request->nama_user,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_telepon' => $request->no_telepon
-        ]);
+        try {
+            Pengguna::create([
+                'kode_user' => 'USR-' . Str::random(6),
+                'nama_user' => $request->nama_user,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'no_telepon' => $request->no_telepon
+            ]);
 
-        auth('pengguna')->login($pengguna);
-
-        return redirect()->route('user.dashboard');
+            return redirect()->route('login')
+                           ->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                        ->withErrors(['error' => 'Terjadi kesalahan saat registrasi. Silakan coba lagi.']);
+        }
     }
 
     public function registerAdmin(Request $request)
@@ -58,17 +62,21 @@ class RegisterController extends Controller
             'no_telepon' => 'required|string|max:15'
         ]);
 
-        $admin = Admin::create([
-            'kode_admin' => 'ADM-' . Str::random(6),
-            'nama_admin' => $request->nama_admin,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_telepon' => $request->no_telepon
-        ]);
+        try {
+            Admin::create([
+                'kode_admin' => 'ADM-' . Str::random(6),
+                'nama_admin' => $request->nama_admin,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'no_telepon' => $request->no_telepon
+            ]);
 
-        auth('admin')->login($admin);
-
-        return redirect()->route('admin.dashboard');
+            return redirect()->route('login')
+                           ->with('success', 'Registrasi admin berhasil! Silakan login dengan akun Anda.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                        ->withErrors(['error' => 'Terjadi kesalahan saat registrasi. Silakan coba lagi.']);
+        }
     }
 
     public function registerManager(Request $request)
@@ -80,16 +88,20 @@ class RegisterController extends Controller
             'no_telepon' => 'required|string|max:15'
         ]);
 
-        $manager = Manager::create([
-            'kode_manager' => 'MGR-' . Str::random(6),
-            'nama_manager' => $request->nama_manager,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_telepon' => $request->no_telepon
-        ]);
+        try {
+            Manager::create([
+                'kode_manager' => 'MGR-' . Str::random(6),
+                'nama_manager' => $request->nama_manager,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'no_telepon' => $request->no_telepon
+            ]);
 
-        auth('manager')->login($manager);
-
-        return redirect()->route('manager.dashboard');
+            return redirect()->route('login')
+                           ->with('success', 'Registrasi manager berhasil! Silakan login dengan akun Anda.');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                        ->withErrors(['error' => 'Terjadi kesalahan saat registrasi. Silakan coba lagi.']);
+        }
     }
 } 
