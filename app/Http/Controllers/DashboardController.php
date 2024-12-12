@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\EmisiCarbon;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -12,70 +14,36 @@ class DashboardController extends Controller
     {
         $user = Auth::guard('pengguna')->user();
         
-        // Mengambil total emisi
-        $totalEmisi = EmisiCarbon::where('kode_user', $user->kode_user)->sum('kadar_emisi_karbon');
-        
-        // Mengambil carbon credits
-        $carbonCredits = 0; // Implementasikan sesuai logika bisnis Anda
-        
-        // Status emisi
-        $statusEmisi = $this->calculateEmissionStatus($totalEmisi);
-        
-        // Data untuk grafik
-        $chartData = EmisiCarbon::where('kode_user', $user->kode_user)
-            ->orderBy('created_at')
-            ->get()
-            ->groupBy(function($date) {
-                return Carbon::parse($date->created_at)->format('M');
-            })
-            ->map(function($group) {
-                return $group->sum('kadar_emisi_karbon');
-            });
+        // Mengambil total emisi per kategori
+        $emisiPerKategori = EmisiCarbon::where('kode_user', $user->kode_user)
+            ->select('kategori_emisi_karbon', DB::raw('SUM(kadar_emisi_karbon) as total_emisi'))
+            ->groupBy('kategori_emisi_karbon')
+            ->get();
 
-        // Aktivitas terakhir
-        $recentActivities = EmisiCarbon::where('kode_user', $user->kode_user)
+        // Mengambil emisi dengan status pending
+        $emisiPending = EmisiCarbon::where('kode_user', $user->kode_user)
+            ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->take(5)
-            ->get()
-            ->map(function($activity) {
-                $activity->status_color = $this->getStatusColor($activity->status);
-                return $activity;
-            });
+            ->get();
 
-        return view('pages.user.dashboard', [
-            'totalEmisi' => $totalEmisi,
-            'carbonCredits' => $carbonCredits,
-            'statusEmisi' => $statusEmisi,
-            'chartLabels' => $chartData->keys(),
-            'chartData' => $chartData->values(),
-            'recentActivities' => $recentActivities
-        ]);
-    }
+        // Data untuk grafik berdasarkan tahun
+        $emisiPerTahun = EmisiCarbon::where('kode_user', $user->kode_user)
+            ->select(
+                DB::raw('YEAR(tanggal_emisi) as tahun'),
+                DB::raw('SUM(kadar_emisi_karbon) as total_emisi')
+            )
+            ->groupBy(DB::raw('YEAR(tanggal_emisi)'))
+            ->orderBy('tahun', 'asc')
+            ->get();
 
-    private function calculateEmissionStatus($totalEmisi)
-    {
-        // Implementasikan logika status emisi
-        if ($totalEmisi < 1000) {
-            return 'Rendah';
-        } elseif ($totalEmisi < 5000) {
-            return 'Sedang';
-        } else {
-            return 'Tinggi';
-        }
-    }
+        Log::info('Data Emisi per Tahun:', ['data' => $emisiPerTahun]);
 
-    private function getStatusColor($status)
-    {
-        switch ($status) {
-            case 'completed':
-                return 'success';
-            case 'pending':
-                return 'warning';
-            case 'cancelled':
-                return 'danger';
-            default:
-                return 'secondary';
-        }
+        return view('pages.user.dashboard', compact(
+            'emisiPerKategori',
+            'emisiPending',
+            'emisiPerTahun'
+        ));
     }
 
     public function adminDashboard()
