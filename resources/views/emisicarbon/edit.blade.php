@@ -1,63 +1,65 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-6">
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-12">
-            <h2 class="text-center mb-4 text-success">Edit Emisi Karbon</h2>
-
-            <div class="card shadow-lg" style="border-radius: 15px;">
-                <div class="card-body" style="background-color: #e8f5e9;">
-                    <form action="{{ route('emisicarbon.update', $emisiCarbon->id) }}" method="POST">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Edit Data Emisi Karbon</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('emisicarbon.update', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
                         @csrf
                         @method('PUT')
-
-                        <div class="row">
-                            <!-- Kode Emisi Karbon -->
-                            <div class="col-md-6 mb-3">
-                                <label for="kode_emisi_karbon" class="form-label text-success">Kode Emisi Karbon</label>
-                                <input type="text" class="form-control" id="kode_emisi_karbon" name="kode_emisi_karbon" value="{{ $emisiCarbon->kode_emisi_karbon }}" required>
-                            </div>
-
-                            <!-- Kategori Emisi Karbon -->
-                            <div class="col-md-6 mb-3">
-                                <label for="kategori_emisi_karbon" class="form-label text-success">Kategori Emisi Karbon</label>
-                                <input type="text" class="form-control" id="kategori_emisi_karbon" name="kategori_emisi_karbon" value="{{ $emisiCarbon->kategori_emisi_karbon }}" required>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <!-- Tanggal Emisi -->
-                            <div class="col-md-6 mb-3">
-                                <label for="tanggal_emisi" class="form-label text-success">Tanggal Emisi</label>
-                                <input type="date" class="form-control" id="tanggal_emisi" name="tanggal_emisi" value="{{ $emisiCarbon->tanggal_emisi }}" required>
-                            </div>
-
-                            <!-- Kadar Emisi Karbon -->
-                            <div class="col-md-6 mb-3">
-                                <label for="kadar_emisi_karbon" class="form-label text-success">Kadar Emisi Karbon</label>
-                                <input type="number" class="form-control" id="kadar_emisi_karbon" name="kadar_emisi_karbon" value="{{ $emisiCarbon->kadar_emisi_karbon }}" required>
-                            </div>
-                        </div>
-
-                        <!-- Deskripsi -->
+                        
                         <div class="mb-3">
-                            <label for="deskripsi" class="form-label text-success">Deskripsi</label>
-                            <textarea class="form-control" id="deskripsi" name="deskripsi" required rows="4">{{ $emisiCarbon->deskripsi }}</textarea>
+                            <label for="tanggal_emisi" class="form-label">Tanggal</label>
+                            <input type="date" class="form-control @error('tanggal_emisi') is-invalid @enderror" 
+                                   id="tanggal_emisi" name="tanggal_emisi" 
+                                   value="{{ old('tanggal_emisi', $emisiCarbon->tanggal_emisi) }}" required>
+                            @error('tanggal_emisi')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
-                        <!-- Status -->
                         <div class="mb-3">
-                            <label for="status" class="form-label text-success">Status</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="Aktif" {{ $emisiCarbon->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                                <option value="Tidak Aktif" {{ $emisiCarbon->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                            <label for="kategori_emisi_karbon" class="form-label">Kategori Emisi</label>
+                            <select class="form-select @error('kategori_emisi_karbon') is-invalid @enderror" 
+                                    id="kategori_emisi_karbon" name="kategori_emisi_karbon" required>
+                                <option value="">Pilih Kategori Emisi</option>
+                                <option value="transportasi" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'transportasi' ? 'selected' : '' }}>Transportasi</option>
+                                <option value="listrik" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'listrik' ? 'selected' : '' }}>Penggunaan Listrik</option>
+                                <option value="sampah" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'sampah' ? 'selected' : '' }}>Pembuangan Sampah</option>
+                                <option value="lainnya" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                             </select>
+                            @error('kategori_emisi_karbon')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
-                        <!-- Button Submit -->
-                        <div class="d-grid gap-2 col-6 mx-auto">
-                            <button type="submit" class="btn btn-success btn-lg" style="border-radius: 25px;">Perbarui</button>
+                        <div class="mb-3">
+                            <label for="kadar_emisi_karbon" class="form-label">Kadar Emisi (kg CO2)</label>
+                            <input type="number" step="0.01" class="form-control @error('kadar_emisi_karbon') is-invalid @enderror" 
+                                   id="kadar_emisi_karbon" name="kadar_emisi_karbon" 
+                                   value="{{ old('kadar_emisi_karbon', $emisiCarbon->kadar_emisi_karbon) }}" required>
+                            @error('kadar_emisi_karbon')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="deskripsi" class="form-label">Deskripsi</label>
+                            <textarea class="form-control @error('deskripsi') is-invalid @enderror" 
+                                      id="deskripsi" name="deskripsi" rows="3" required>{{ old('deskripsi', $emisiCarbon->deskripsi) }}</textarea>
+                            @error('deskripsi')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Update Data</button>
+                            <a href="{{ route('emisicarbon.index') }}" class="btn btn-outline-secondary">Kembali</a>
                         </div>
                     </form>
                 </div>

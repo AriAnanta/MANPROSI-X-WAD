@@ -19,10 +19,15 @@ return new class extends Migration
             $table->decimal('kadar_emisi_karbon', 10, 2);
             $table->string('deskripsi');
             $table->string('status');
-            $table->foreignId('kode_manager')->nullable()->constrained('managers')->onDelete('cascade');
-            $table->foreignId('kode_user')->nullable()->constrained('penggunas')->onDelete('cascade');
-            $table->foreignId('kode_admin')->nullable()->constrained('admins')->onDelete('cascade');
+            $table->string('kode_manager')->nullable();
+            $table->string('kode_user')->nullable();
+            $table->string('kode_admin')->nullable();
             $table->timestamps();
+
+            // Menambahkan foreign key constraints
+            $table->foreign('kode_manager')->references('kode_manager')->on('managers')->onDelete('cascade');
+            $table->foreign('kode_user')->references('kode_user')->on('penggunas')->onDelete('cascade');
+            $table->foreign('kode_admin')->references('kode_admin')->on('admins')->onDelete('cascade');
         });
     }
 

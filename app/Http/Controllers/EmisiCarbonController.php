@@ -4,94 +4,91 @@ namespace App\Http\Controllers;
 
 use App\Models\EmisiCarbon;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class EmisiCarbonController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $emisis = EmisiCarbon::all();
-        return view('emisicarbon.index', compact('emisis'));
+        $emisiCarbons = EmisiCarbon::where('kode_user', Auth::guard('pengguna')->user()->kode_user)
+                                  ->orderBy('created_at', 'desc')
+                                  ->paginate(10);
+        return view('emisicarbon.index', compact('emisiCarbons'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('emisicarbon.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $validateData = $request->validate([
-            'kode_emisi_karbon' => 'required|string|max:5|unique:emisi_carbons',
-            'kategori_emisi_karbon' => 'required|string',
+        $request->validate([
             'tanggal_emisi' => 'required|date',
-            'kadar_emisi_karbon' => 'required|integer',
-            'deskripsi' => 'required|string',
-            'status' => 'required|string',
+            'kategori_emisi_karbon' => 'required|string',
+            'kadar_emisi_karbon' => 'required|numeric|min:0',
+            'deskripsi' => 'required|string'
         ]);
 
-        EmisiCarbon::create($validateData);
-        return redirect()->route('emisicarbon.index')->with('success', 'Data Emisi Karbon Ditambahkan');
+        // Generate kode emisi karbon
+        $kodeEmisi = 'EMC-' . Str::random(6);
+
+        EmisiCarbon::create([
+            'kode_emisi_karbon' => $kodeEmisi,
+            'kategori_emisi_karbon' => $request->kategori_emisi_karbon,
+            'tanggal_emisi' => $request->tanggal_emisi,
+            'kadar_emisi_karbon' => $request->kadar_emisi_karbon,
+            'deskripsi' => $request->deskripsi,
+            'status' => 'pending',
+            'kode_user' => Auth::guard('pengguna')->user()->kode_user
+        ]);
+
+        return redirect()->route('emisicarbon.index')
+                        ->with('success', 'Data emisi karbon berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(EmisiCarbon $emisiCarbon)
+    public function edit($kode_emisi_karbon)
     {
-        $emisi = EmisiCarbon::findOrFail($emisiCarbon);
-        return view('emisicarbon.show', compact('emisi'));
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
+                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
+                                 ->firstOrFail();
+        return view('emisicarbon.edit', compact('emisiCarbon'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-{
-    $emisiCarbon = EmisiCarbon::findOrFail($id);
-    return view('emisicarbon.edit', compact('emisiCarbon'));
-}
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-{
-    // Mendapatkan model berdasarkan ID
-        $emisi = EmisiCarbon::findOrFail($id); // Ambil data berdasarkan ID
-
-    // Validasi input
+    public function update(Request $request, $kode_emisi_karbon)
+    {
         $request->validate([
-            'kode_emisi_karbon' => 'required|unique:emisi_carbons,kode_emisi_karbon,' . $emisi->id,
-            'kadar_emisi_karbon' => 'required|integer',
-            'kategori_emisi_karbon' => 'required'
-    ]);
+            'tanggal_emisi' => 'required|date',
+            'kategori_emisi_karbon' => 'required|string',
+            'kadar_emisi_karbon' => 'required|numeric|min:0',
+            'deskripsi' => 'required|string'
+        ]);
 
-    // Update data model
-        $emisi->update($request->all());
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
+                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
+                                 ->firstOrFail();
+        
+        $emisiCarbon->update([
+            'tanggal_emisi' => $request->tanggal_emisi,
+            'kategori_emisi_karbon' => $request->kategori_emisi_karbon,
+            'kadar_emisi_karbon' => $request->kadar_emisi_karbon,
+            'deskripsi' => $request->deskripsi
+        ]);
 
-    // Redirect setelah berhasil
-        return redirect()->route('emisicarbon.index')->with('success', 'Data Emisi Karbon Diperbaharui');
-}
+        return redirect()->route('emisicarbon.index')
+                        ->with('success', 'Data emisi karbon berhasil diperbarui.');
+    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-{
-    // Menghapus data berdasarkan model tunggal yang dipassing
-    $emisi = EmisiCarbon::findOrFail($id);
-    $emisi->delete();
+    public function destroy($kode_emisi_karbon)
+    {
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
+                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
+                                 ->firstOrFail();
+        
+        $emisiCarbon->delete();
 
-    return redirect()->route('emisicarbon.index')->with('success', 'Data Emisi Karbon Dihapus');
-}
+        return redirect()->route('emisicarbon.index')
+                        ->with('success', 'Data emisi karbon berhasil dihapus.');
+    }
 }

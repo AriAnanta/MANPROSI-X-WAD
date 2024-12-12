@@ -19,14 +19,24 @@ class EmisiCarbon extends Model
         'kode_user',
         'kode_admin'
     ];
-    public function admin(){
-        return $this->belongsTo(Admin::class, 'kode_admin'); 
-    }
-    public function manager(){
-        return $this->belongsTo(Manager::class, 'kode_manager'); 
-    }
-    public function user(){
-        return $this->belongsTo(Pengguna::class, 'kode_user'); 
+
+    protected $casts = [
+        'tanggal_emisi' => 'date',
+        'kadar_emisi_karbon' => 'decimal:2'
+    ];
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'kode_admin', 'kode_admin');
     }
 
+    public function manager()
+    {
+        return $this->belongsTo(Manager::class, 'kode_manager', 'kode_manager');
+    }
+
+    public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'kode_user', 'kode_user');
+    }
 }

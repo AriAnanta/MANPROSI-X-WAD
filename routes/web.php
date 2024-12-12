@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmisiCarbonController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CarbonCreditController;
+use App\Http\Controllers\ReportController;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -30,6 +32,11 @@ Route::middleware('guest')->group(function () {
 // Routes untuk Pengguna yang sudah login
 Route::middleware(['auth:pengguna'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'userDashboard'])->name('user.dashboard');
+    
+    // Route untuk Emisi Karbon
+    Route::resource('emisicarbon', EmisiCarbonController::class);
+    
+   
 });
 
 // Routes untuk Admin yang sudah login
