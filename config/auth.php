@@ -44,13 +44,13 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
-        'manager' => [
-            'driver' => 'session',
-            'provider' => 'managers',
-        ],
         'pengguna' => [
             'driver' => 'session',
             'provider' => 'penggunas',
+        ],
+        'manager' => [
+            'driver' => 'session',
+            'provider' => 'managers',
         ],
     ],
 

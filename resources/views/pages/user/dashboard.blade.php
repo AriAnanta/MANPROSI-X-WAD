@@ -131,6 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    console.log('Data Tahun:', {!! json_encode($emisiPerTahun->pluck('tahun')) !!});
+    console.log('Data Emisi:', {!! json_encode($emisiPerTahun->pluck('total_emisi')) !!});
 });
 </script>
 @endpush

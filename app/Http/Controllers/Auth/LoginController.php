@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Admin;
 use App\Models\Manager;
 use App\Models\Pengguna;
-
+use Illuminate\Support\Facades\Log;
 class LoginController extends Controller
 {
     public function showLoginForm()
@@ -57,5 +57,23 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         
         return redirect()->route('login');
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        Log::info('User authenticated', [
+            'user' => $user,
+            'admin_check' => Auth::guard('admin')->check(),
+            'pengguna_check' => Auth::guard('pengguna')->check(),
+            'manager_check' => Auth::guard('manager')->check()
+        ]);
+        
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        } elseif (Auth::guard('pengguna')->check()) {
+            return redirect()->route('user.dashboard');
+        } elseif (Auth::guard('manager')->check()) {
+            return redirect()->route('manager.dashboard');
+        }
     }
 } 
