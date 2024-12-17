@@ -134,11 +134,16 @@ class DashboardController extends Controller
         // Hitung total pengguna
         $totalPengguna = Pengguna::count();
         
-        // Hitung total emisi
-        $totalEmisi = EmisiCarbon::where('status', 'approved')->sum('kadar_emisi_karbon');
+        // Hitung total emisi per tahun
+        $totalEmisiPerTahun = EmisiCarbon::where('status', 'approved')
+            ->whereYear('tanggal_emisi', now()->year) // Filter untuk tahun ini
+            ->sum('kadar_emisi_karbon');
+        $totalEmisiPerTahunPending = EmisiCarbon::where('status', 'pending')
+            ->whereYear('tanggal_emisi', now()->year) // Filter untuk tahun ini
+            ->sum('kadar_emisi_karbon');
         
-        // Hitung rata-rata emisi per pengguna
-        $rataRataEmisi = $totalPengguna > 0 ? $totalEmisi / $totalPengguna : 0;
+        // Hitung rata-rata emisi per tahun per pengguna
+        $rataRataEmisiPerTahun = $totalPengguna > 0 ? $totalEmisiPerTahun / $totalPengguna : 0;
         
         // Hitung total emisi pending
         $totalEmisiPending = EmisiCarbon::where('status', 'pending')->count();
@@ -166,11 +171,12 @@ class DashboardController extends Controller
 
         return view('pages.manager.dashboard', compact(
             'totalPengguna',
-            'totalEmisi',
-            'rataRataEmisi',
+            'totalEmisiPerTahun',
+            'rataRataEmisiPerTahun',
             'totalEmisiPending',
             'emisiPending',
             'topPengguna',
+            'totalEmisiPerTahunPending',
             'chartData'
         ));
     }

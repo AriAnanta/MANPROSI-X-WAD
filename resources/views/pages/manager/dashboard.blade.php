@@ -25,9 +25,9 @@
                 <div class="card bg-success text-white h-100 shadow-sm">
                     <div class="card-body text-center">
                         <i class="fas fa-cloud fa-3x mb-3"></i>
-                        <h5 class="card-title">Total Emisi</h5>
+                        <h5 class="card-title">Total Emisi Approve</h5>
                         <p class="card-text display-6">
-                            {{ number_format($totalEmisi, 2) }}
+                            {{ number_format($totalEmisiPerTahun, 2) }}
                             <small class="fs-6">kg CO<sub>2</sub></small>
                         </p>
                     </div>
@@ -36,11 +36,11 @@
             <div class="col-md-3 mb-3">
                 <div class="card bg-info text-white h-100 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                        <h5 class="card-title">Rata-rata Emisi</h5>
+                        <i class="fas fa-cloud fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Emisi Pending</h5>
                         <p class="card-text display-6">
-                            {{ number_format($rataRataEmisi, 2) }}
-                            <small class="fs-6">kg CO<sub>2</sub>/user</small>
+                            {{ number_format($totalEmisiPerTahunPending, 2) }}
+                            <small class="fs-6">kg CO<sub>2</sub></small>
                         </p>
                     </div>
                 </div>

@@ -7,7 +7,7 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
@@ -99,27 +99,39 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/emisicarbon*') ? 'active' : '' }}" href="{{ route('admin.emissions.index') }}">
+                                <i class="bi bi-pencil-square me-2"></i>
+                                Kelola Emisi Karbon
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="#">
                                 <i class="bi bi-people me-2"></i>
                                 Kelola Pengguna
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/emissions*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-cloud me-2"></i>
-                                Data Emisi
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}" href="#">
                                 <i class="bi bi-file-text me-2"></i>
-                                Laporan
+                                Pembelian Carbon Credit
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
                                 <i class="bi bi-gear me-2"></i>
-                                Pengaturan
+                                Buat Notifikasi 
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                                <i class="bi bi-gear me-2"></i>
+                                Cetak Laporan Emisi Karbon 
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                                <i class="bi bi-gear me-2"></i>
+                                Cetak Laporan Pembelian Carbon Credit
                             </a>
                         </li>
                     </ul>

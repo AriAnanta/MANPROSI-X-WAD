@@ -35,13 +35,19 @@ Route::middleware(['auth:pengguna'])->group(function () {
     
     // Route untuk Emisi Karbon
     Route::resource('emisicarbon', EmisiCarbonController::class);
-    
-   
 });
 
 // Routes untuk Admin yang sudah login
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
+    
+    // Gunakan prefix untuk konsistensi path
+    Route::prefix('admin')->group(function () {
+        // Rute untuk mengelola emisi karbon
+        Route::get('/emisicarbon', [EmisiCarbonController::class, 'adminIndex'])->name('admin.emissions.index');
+        Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit_status');
+        Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update_status');
+    });
 });
 
 // Routes untuk Manager yang sudah login

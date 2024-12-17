@@ -91,4 +91,31 @@ class EmisiCarbonController extends Controller
         return redirect()->route('emisicarbon.index')
                         ->with('success', 'Data emisi karbon berhasil dihapus.');
     }
+
+    public function editStatus($kode_emisi_karbon)
+    {
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)->firstOrFail();
+        return view('emisicarbon.edit_status', compact('emisiCarbon'));
+    }
+
+    public function updateStatus(Request $request, $kode_emisi_karbon)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,pending,rejected',
+        ]);
+
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)->firstOrFail();
+        $emisiCarbon->status = $request->status;
+        $emisiCarbon->kode_admin = Auth::guard('admin')->user()->kode_admin;
+        $emisiCarbon->save();
+
+        return redirect()->route('admin.emissions.index')
+                        ->with('success', 'Status emisi karbon berhasil diperbarui.');
+    }
+
+    public function adminIndex()
+    {
+        $emisiCarbons = EmisiCarbon::orderBy('created_at', 'desc')->paginate(10);
+        return view('emisicarbon.admin.index', compact('emisiCarbons'));
+    }
 }
