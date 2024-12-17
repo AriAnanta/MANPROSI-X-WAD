@@ -100,37 +100,37 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/emisicarbon*') ? 'active' : '' }}" href="{{ route('admin.emissions.index') }}">
-                                <i class="bi bi-pencil-square me-2"></i>
+                                <i class="bi bi-cloud-upload me-2"></i> 
                                 Kelola Emisi Karbon
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-people me-2"></i>
+                                <i class="bi bi-person-lines-fill me-2"></i>  
                                 Kelola Pengguna
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-file-text me-2"></i>
+                                <i class="bi bi-cart me-2"></i> 
                                 Pembelian Carbon Credit
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-gear me-2"></i>
-                                Buat Notifikasi 
+                                <i class="bi bi-bell me-2"></i> 
+                                Buat Notifikasi
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-gear me-2"></i>
-                                Cetak Laporan Emisi Karbon 
+                                <i class="bi bi-printer me-2"></i> 
+                                Cetak Laporan Emisi Karbon
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-gear me-2"></i>
+                                <i class="bi bi-printer me-2"></i> 
                                 Cetak Laporan Pembelian Carbon Credit
                             </a>
                         </li>
