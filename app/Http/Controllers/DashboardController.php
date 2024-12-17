@@ -28,22 +28,26 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Data untuk grafik berdasarkan tahun
-        $emisiPerTahun = EmisiCarbon::where('kode_user', $user->kode_user)
-        ->select(
-        DB::raw('YEAR(tanggal_emisi) as tahun'),
-        DB::raw('SUM(kadar_emisi_karbon) as total_emisi')
-    )
-        ->groupBy(DB::raw('YEAR(tanggal_emisi)'))
-        ->orderBy('tahun', 'asc')
-        ->get();
+        // Ambil data emisi terbaru dengan relasi pengguna
+        $recentEmissions = EmisiCarbon::with('pengguna')
+            ->whereNotNull('kode_user')  // Pastikan kode_user tidak null
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        // Debug untuk memeriksa data
+        Log::info('Recent Emissions:', ['emissions' => $recentEmissions->toArray()]);
 
-        Log::info('Data Emisi per Tahun:', ['data' => $emisiPerTahun]);
+        // Siapkan data untuk grafik bulanan
+        $chartData = $this->prepareChartData();
+
+        Log::info('Data Emisi per Tahun:', ['data' => $recentEmissions]);
 
         return view('pages.user.dashboard', compact(
             'emisiPerKategori',
             'emisiPending',
-            'emisiPerTahun'
+            'recentEmissions',
+            'chartData'
         ));
     }
 
@@ -82,18 +86,38 @@ class DashboardController extends Controller
 
     private function prepareChartData()
     {
-        // Ambil data 6 bulan terakhir
-        $months = collect(range(5, 0))->map(function ($i) {
-            return now()->startOfMonth()->subMonths($i);
-        });
+        // Cek guard yang aktif
+        if (Auth::guard('pengguna')->check()) {
+            // Untuk user biasa, tampilkan data per user
+            $user = Auth::guard('pengguna')->user();
+            
+            // Ambil data 6 bulan terakhir
+            $months = collect(range(5, 0))->map(function ($i) {
+                return now()->startOfMonth()->subMonths($i);
+            });
 
-        $emissions = EmisiCarbon::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(kadar_emisi_karbon) as total')
-            ->whereYear('created_at', '>=', now()->subMonths(6)->year)
-            ->groupBy('month')
-            ->get()
-            ->keyBy('month');
+            $emissions = EmisiCarbon::selectRaw('DATE_FORMAT(tanggal_emisi, "%Y-%m") as month, SUM(kadar_emisi_karbon) as total')
+                ->where('kode_user', $user->kode_user)
+                ->whereYear('tanggal_emisi', '>=', now()->subMonths(6)->year)
+                ->whereMonth('tanggal_emisi', '>=', now()->subMonths(6)->month)
+                ->groupBy('month')
+                ->get()
+                ->keyBy('month');
+        } else {
+            // Untuk admin, tampilkan data keseluruhan
+            $months = collect(range(5, 0))->map(function ($i) {
+                return now()->startOfMonth()->subMonths($i);
+            });
 
-        $labels = $months->map(fn ($date) => $date->format('M Y'));
+            $emissions = EmisiCarbon::selectRaw('DATE_FORMAT(tanggal_emisi, "%Y-%m") as month, SUM(kadar_emisi_karbon) as total')
+                ->whereYear('tanggal_emisi', '>=', now()->subMonths(6)->year)
+                ->whereMonth('tanggal_emisi', '>=', now()->subMonths(6)->month)
+                ->groupBy('month')
+                ->get()
+                ->keyBy('month');
+        }
+        
+        $labels = $months->map(fn ($date) => $date->isoFormat('MMMM Y')); 
         $data = $months->map(function ($date) use ($emissions) {
             $month = $date->format('Y-m');
             return $emissions->get($month)->total ?? 0;
@@ -107,6 +131,104 @@ class DashboardController extends Controller
 
     public function managerDashboard()
     {
-        return view('pages.manager.dashboard');
+        // Hitung total pengguna
+        $totalPengguna = Pengguna::count();
+        
+        // Hitung total emisi
+        $totalEmisi = EmisiCarbon::where('status', 'approved')->sum('kadar_emisi_karbon');
+        
+        // Hitung rata-rata emisi per pengguna
+        $rataRataEmisi = $totalPengguna > 0 ? $totalEmisi / $totalPengguna : 0;
+        
+        // Hitung total emisi pending
+        $totalEmisiPending = EmisiCarbon::where('status', 'pending')->count();
+        
+        // Ambil data emisi pending terbaru
+        $emisiPending = EmisiCarbon::with('pengguna')
+            ->where('status', 'pending')
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        // Ambil top 10 pengguna dengan emisi tertinggi
+        $topPengguna = Pengguna::select('penggunas.*')
+            ->selectRaw('SUM(emisi_carbons.kadar_emisi_karbon) as total_emisi')
+            ->selectRaw('COUNT(emisi_carbons.id) as jumlah_pengajuan')
+            ->leftJoin('emisi_carbons', 'penggunas.kode_user', '=', 'emisi_carbons.kode_user')
+            ->where('emisi_carbons.status', 'approved')
+            ->groupBy('penggunas.kode_user')
+            ->orderBy('total_emisi', 'desc')
+            ->take(10)
+            ->get();
+        
+        // Siapkan data untuk grafik bulanan
+        $chartData = $this->prepareManagerChartData();
+
+        return view('pages.manager.dashboard', compact(
+            'totalPengguna',
+            'totalEmisi',
+            'rataRataEmisi',
+            'totalEmisiPending',
+            'emisiPending',
+            'topPengguna',
+            'chartData'
+        ));
+    }
+
+    private function prepareManagerChartData()
+    {
+        // Ambil data 6 bulan terakhir
+        $months = collect(range(5, 0))->map(function ($i) {
+            return now()->startOfMonth()->subMonths($i);
+        });
+
+        $emissions = EmisiCarbon::selectRaw('DATE_FORMAT(tanggal_emisi, "%Y-%m") as month, SUM(kadar_emisi_karbon) as total')
+            ->where('status', 'approved')
+            ->whereYear('tanggal_emisi', '>=', now()->subMonths(6)->year)
+            ->whereMonth('tanggal_emisi', '>=', now()->subMonths(6)->month)
+            ->groupBy('month')
+            ->get()
+            ->keyBy('month');
+        
+        $labels = $months->map(fn ($date) => $date->isoFormat('MMMM Y'));
+        $data = $months->map(function ($date) use ($emissions) {
+            $month = $date->format('Y-m');
+            return $emissions->get($month)->total ?? 0;
+        });
+
+        return [
+            'labels' => $labels->values(),
+            'data' => $data->values(),
+        ];
+    }
+
+    public function index()
+    {
+        $user = Auth::guard('pengguna')->user();
+        // Mengambil data emisi karbon per bulan
+        $emisiPerBulan = EmisiCarbon::selectRaw('DATE_FORMAT(tanggal_emisi, "%Y-%m") as month, SUM(kadar_emisi_karbon) as total')
+        ->where('kode_user', $user->kode_user) // Filter berdasarkan user
+        ->whereYear('tanggal_emisi', '>=', now()->subMonths(6)->year)
+        ->whereMonth('tanggal_emisi', '>=', now()->subMonths(6)->month)
+        ->groupBy('month')
+        ->get()
+        ->keyBy('month');
+
+        // Menyiapkan data untuk chart
+        $labels = [];
+        $data = [];
+        
+        foreach ($emisiPerBulan as $emisi) {
+            $bulan = Carbon::create()->month($emisi->bulan)->locale('id');
+            $labels[] = $bulan->isoFormat('MMMM');
+            $data[] = $emisi->total_emisi;
+        }
+
+        $chartData = [
+            'labels' => $labels,
+            'data' => $data
+        ];
+
+        return view('pages.user.dashboard', compact('chartData'));
     }
 }

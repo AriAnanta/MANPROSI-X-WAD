@@ -4,47 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Admin - GreenLedger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(to right, #198754, #28a745);
+            color: #fff;
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 20px 0;
+            justify-content: center;
+            margin: 0;
         }
-        
+
         .register-container {
             max-width: 500px;
             width: 100%;
-            padding: 20px;
-            margin: auto;
+            background-color: #fff;
+            color: #212529;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-        
+
         .register-header {
             text-align: center;
-            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #198754;
+            color: #fff;
         }
-        
+
         .register-header img {
-            max-width: 150px;
-            margin-bottom: 20px;
+            max-width: 100px;
+            margin-bottom: 10px;
         }
-        
+
         .card {
             border: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
-        
-        .card-header {
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+
+        .btn-success {
             background-color: #198754;
-            border-bottom: none;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0 !important;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background-color: #145e38;
+        }
+
+        .text-success {
+            font-weight: bold;
+        }
+
+        .text-success:hover {
+            text-decoration: underline;
+        }
+
+        .text-center p {
+            margin-top: 15px;
+        }
+
+        small {
+            color: #6c757d;
+        }
+
+        @media (max-width: 576px) {
+            .register-container {
+                padding: 10px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
         }
     </style>
 </head>
@@ -54,12 +101,9 @@
             <img src="{{ asset('images/logo.png') }}" alt="Logo">
             <h4>GreenLedger</h4>
         </div>
-        
+
         <div class="card">
-            <div class="card-header">
-                <h5 class="text-white mb-0">Register Admin</h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="card-body">
                 @if($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -72,7 +116,7 @@
 
                 <form method="POST" action="{{ route('register.admin') }}">
                     @csrf
-                    
+
                     <div class="mb-3">
                         <label for="nama_admin" class="form-label">Nama Lengkap</label>
                         <input type="text" class="form-control @error('nama_admin') is-invalid @enderror" 
@@ -111,13 +155,13 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="text-center mt-3">
-            <small class="text-muted">&copy; {{ date('Y') }} GreenLedger. All rights reserved.</small>
+            <small>&copy; {{ date('Y') }} GreenLedger. All rights reserved.</small>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>

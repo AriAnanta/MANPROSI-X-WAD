@@ -1,119 +1,160 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Dashboard Admin - GreenLedger')
 
 @section('content')
-    <!-- Statistik -->
-    <div class="row g-3">
-        <!-- Total Pengguna -->
-        <div class="col-sm-6 col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body d-flex">
-                    <div class="me-3">
-                        <i class="bi bi-people-fill fs-2 text-secondary"></i>
+<div class="container-fluid">
+    <main class="px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2 text-success"> Dashboard Admin</h1>
+        </div>
+
+        <!-- Kartu Informasi Ringkasan -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light-green text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Pengguna</h5>
+                        <p class="card-text display-6">
+                            {{ $totalUsers }}
+                            <small class="fs-6">pengguna</small>
+                        </p>
                     </div>
-                    <div>
-                        <h6 class="card-subtitle mb-1 text-muted">Total Pengguna</h6>
-                        <h5 class="card-title mb-0">{{ $totalUsers }}</h5>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-cloud fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Emisi Carbon</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($totalEmissions, 2) }}
+                            <small class="fs-6">kg CO<sub>2</sub></small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <h5 class="card-title">Rata-rata Emisi/Pengguna</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($averageEmissionPerUser, 2) }}
+                            <small class="fs-6">kg CO<sub>2</sub>/user</small>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Total Emisi Carbon -->
-        <div class="col-sm-6 col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body d-flex">
-                    <div class="me-3">
-                        <i class="bi bi-cloud-fill fs-2 text-secondary"></i>
-                    </div>
-                    <div>
-                        <h6 class="card-subtitle mb-1 text-muted">Total Emisi Carbon</h6>
-                        <h5 class="card-title mb-0">{{ $totalEmissions }} kg</h5>
-                    </div>
-                </div>
+        <!-- Grafik -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Grafik Emisi Carbon Bulanan</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="emissionChart" height="400" width="800"></canvas>
             </div>
         </div>
 
-        <!-- Rata-rata Emisi per Pengguna -->
-        <div class="col-sm-6 col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body d-flex">
-                    <div class="me-3">
-                        <i class="bi bi-graph-up fs-2 text-secondary"></i>
-                    </div>
-                    <div>
-                        <h6 class="card-subtitle mb-1 text-muted">Rata-rata Emisi/Pengguna</h6>
-                        <h5 class="card-title mb-0">{{ $averageEmissionPerUser }} kg</h5>
-                    </div>
-                </div>
+        <!-- Tabel Data Terbaru -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-table"></i> Data Emisi Carbon Terbaru</h5>
             </div>
-        </div>
-    </div>
-
-    <!-- Grafik -->
-    <div class="card shadow-sm mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Grafik Emisi Carbon Bulanan</h5>
-            <canvas id="emissionChart" height="300"></canvas>
-        </div>
-    </div>
-
-    <!-- Tabel Data Terbaru -->
-    <div class="card shadow-sm mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Data Emisi Carbon Terbaru</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Pengguna</th>
-                            <th>Tanggal</th>
-                            <th>Total Emisi</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($recentEmissions as $emission)
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-light">
                             <tr>
-                                <td>{{ $emission->pengguna->nama_pengguna }}</td>
-                                <td>{{ $emission->created_at->format('d M Y') }}</td>
-                                <td>{{ $emission->kadar_emisi_karbon }} kg</td>
-                                <td>
-                                    <span class="badge bg-success">Terverifikasi</span>
-                                </td>
+                                <th><i class="fas fa-user"></i> Pengguna</th>
+                                <th><i class="fas fa-calendar-alt"></i> Tanggal</th>
+                                <th><i class="fas fa-weight-hanging"></i> Total Emisi</th>
+                                <th><i class="fas fa-check-circle"></i> Status</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($recentEmissions as $emission)
+                                <tr>
+                                    <td>{{ $emission->pengguna->nama_pengguna }}</td>
+                                    <td>{{ $emission->created_at->format('d M Y') }}</td>
+                                    <td>{{ $emission->kadar_emisi_karbon }} kg</td>
+                                    <td>
+                                        <span class="badge bg-success">Terverifikasi</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-@endsection
+    </main>
+</div>
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('emissionChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($chartData['labels']) !!},
-                datasets: [{
-                    label: 'Total Emisi Carbon (kg)',
-                    data: {!! json_encode($chartData['data']) !!},
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('emissionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($chartData['labels']) !!},
+            datasets: [{
+                label: 'Total Emisi Carbon (kg)',
+                data: {!! json_encode($chartData['data']) !!},
+                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                borderColor: 'rgba(39, 174, 96, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Total Emisi Carbon per Bulan'
+                }
             },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Total Emisi (kg CO₂)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Bulan'
                     }
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
 @endpush
+
+@push('styles')
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0.7rem 1.5rem rgba(0, 0, 0, 0.2);
+    }
+    .bg-light-green {
+        background-color: #28a745;
+        color: white;
+    }
+</style>
+@endpush
+@endsection

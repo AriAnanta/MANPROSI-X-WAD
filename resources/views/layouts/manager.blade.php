@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Dashboard') - Carbon Footprint</title>
+    <title>@yield('title', 'Manager Dashboard') - Carbon Footprint</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -66,7 +66,7 @@
             </button>
             
             <!-- Nama Brand -->
-            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Admin</a>
+            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Manager</a>
 
             <!-- Dropdown Profil -->
             <div class="d-flex align-items-center">
@@ -93,31 +93,25 @@
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                            <a class="nav-link {{ Request::is('manager/dashboard') ? 'active' : '' }}" href="{{ route('manager.dashboard') }}">
                                 <i class="bi bi-house-door me-2"></i>
                                 Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-people me-2"></i>
-                                Kelola Pengguna
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/emissions*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-cloud me-2"></i>
-                                Data Emisi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('manager/reports*') ? 'active' : '' }}" href="#">
                                 <i class="bi bi-file-text me-2"></i>
                                 Laporan
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('manager/emissions*') ? 'active' : '' }}" href="#">
+                                <i class="bi bi-cloud me-2"></i>
+                                Data Emisi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/settings*') ? 'active' : '' }}" href="#">
                                 <i class="bi bi-gear me-2"></i>
                                 Pengaturan
                             </a>

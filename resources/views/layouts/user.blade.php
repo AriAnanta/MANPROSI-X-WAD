@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Dashboard') - Carbon Footprint</title>
+    <title>@yield('title', 'User Dashboard') - Carbon Footprint</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -66,7 +66,7 @@
             </button>
             
             <!-- Nama Brand -->
-            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Admin</a>
+            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint User</a>
 
             <!-- Dropdown Profil -->
             <div class="d-flex align-items-center">
@@ -92,34 +92,22 @@
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <li class="nav-item mb-3">
+                            <a href="{{ url('/dashboard') }}" class="nav-link {{ Request::is('dashboard*') ? 'active' : '' }}">
                                 <i class="bi bi-house-door me-2"></i>
                                 Dashboard
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-people me-2"></i>
-                                Kelola Pengguna
+                        </li>   
+                        <li class="nav-item mb-3">
+                            <a href="{{ route('emisicarbon.create') }}" class="nav-link {{ Request::is('emisicarbon/create') ? 'active' : '' }}">
+                                <i class="bi bi-cloud-upload me-2"></i>
+                                Input Emisi Karbon
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/emissions*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-cloud me-2"></i>
-                                Data Emisi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-file-text me-2"></i>
-                                Laporan
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-gear me-2"></i>
-                                Pengaturan
+                        <li class="nav-item mb-3">
+                            <a href="{{ route('emisicarbon.index') }}" class="nav-link {{ Request::is('emisicarbon') ? 'active' : '' }}">
+                                <i class="bi bi-eye me-2"></i>
+                                Lihat Data Emisi Karbon
                             </a>
                         </li>
                     </ul>

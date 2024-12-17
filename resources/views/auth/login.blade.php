@@ -4,84 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GreenLedger</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
         body {
-            background-color: #f8f9fa;
-            height: 100vh;
+            background: linear-gradient(to right, #198754, #28a745);
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #fff;
         }
-        
+
         .login-container {
-            max-width: 400px;
             width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
+            color: #212529;
         }
-        
+
         .login-header {
             text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .login-header img {
-            max-width: 150px;
             margin-bottom: 20px;
         }
-        
-        .card {
-            border: none;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+
+        .login-header img {
+            max-width: 120px;
         }
-        
+
         .card-header {
             background-color: #198754;
             border-bottom: none;
-            padding: 20px;
             text-align: center;
-            border-radius: 10px 10px 0 0 !important;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0;
+            padding: 15px;
         }
-        
+
         .form-control:focus {
             border-color: #198754;
-            box-shadow: 0 0 0 0.25rem rgba(25,135,84,.25);
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
         }
-        
+
         .btn-success {
-            padding: 12px;
-            font-weight: 500;
+            background: #198754;
+            border: none;
+            font-weight: bold;
         }
-        
-        .form-select:focus {
-            border-color: #198754;
-            box-shadow: 0 0 0 0.25rem rgba(25,135,84,.25);
+
+        .btn-success:hover {
+            background: #145d36;
         }
-        
+
         .register-links {
             margin-top: 20px;
-            padding: 15px;
-            border-top: 1px solid #dee2e6;
+            text-align: center;
         }
-        
-        .register-links p {
-            margin-bottom: 10px;
-            color: #6c757d;
-        }
-        
-        .register-links .btn {
+
+        .register-links a {
+            display: inline-block;
             margin: 5px;
-            width: calc(33.33% - 10px);
-            padding: 8px 0;
+            padding: 8px 12px;
+            color: #198754;
+            border: 1px solid #198754;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
         }
-        
-        @media (max-width: 400px) {
-            .register-links .btn {
-                width: 100%;
-                margin: 5px 0;
+
+        .register-links a:hover {
+            background: #198754;
+            color: #fff;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 15px;
+            }
+
+            .card-header {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -92,12 +109,12 @@
             <img src="{{ asset('images/logo.png') }}" alt="Logo">
             <h4>GreenLedger</h4>
         </div>
-        
+
         <div class="card">
             <div class="card-header">
-                <h5 class="text-white mb-0">Login</h5>
+                Login
             </div>
-            <div class="card-body p-4">
+            <div class="card-body">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
@@ -117,7 +134,7 @@
 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
-                    
+
                     <div class="mb-3">
                         <label for="role" class="form-label">Login Sebagai</label>
                         <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
@@ -145,31 +162,29 @@
                                required>
                     </div>
 
-                    <div class="mb-4 form-check">
+                    <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" name="remember" id="remember">
                         <label class="form-check-label" for="remember">Ingat Saya</label>
                     </div>
 
                     <button type="submit" class="btn btn-success w-100">Masuk</button>
                 </form>
-                
-                <div class="register-links text-center">
+
+                <div class="register-links">
                     <p>Belum punya akun? Daftar sebagai:</p>
-                    <div class="d-flex flex-wrap justify-content-center">
-                        <a href="{{ route('register.pengguna') }}" class="btn btn-outline-success">Pengguna</a>
-                        <a href="{{ route('register.admin') }}" class="btn btn-outline-success">Admin</a>
-                        <a href="{{ route('register.manager') }}" class="btn btn-outline-success">Manager</a>
-                    </div>
+                    <a href="{{ route('register.pengguna') }}">Pengguna</a>
+                    <a href="{{ route('register.admin') }}">Admin</a>
+                    <a href="{{ route('register.manager') }}">Manager</a>
                 </div>
             </div>
         </div>
-        
-        <div class="text-center mt-3">
-            <small class="text-muted">&copy; {{ date('Y') }} GreenLedger. All rights reserved.</small>
+
+        <div class="footer-text">
+            &copy; {{ date('Y') }} GreenLedger. All rights reserved.
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
