@@ -69,7 +69,7 @@
                     </div>
                     <div class="card-body">
                         @if(isset($chartData['labels']) && isset($chartData['data']))
-                            <canvas id="emissionChart" style="max-height: 300px;"></canvas>
+                        <canvas id="emissionChart" height="400" width="800"></canvas>
                         @else
                             <p class="text-center text-muted">Data grafik tidak tersedia</p>
                         @endif

@@ -162,7 +162,7 @@ class DashboardController extends Controller
             ->get();
         
         // Siapkan data untuk grafik bulanan
-        $chartData = $this->prepareManagerChartData();
+        $chartData = $this->prepareChartData();
 
         return view('pages.manager.dashboard', compact(
             'totalPengguna',
