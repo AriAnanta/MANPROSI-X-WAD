@@ -101,10 +101,10 @@
                             @empty
                             <p class="text-center">Tidak ada pengajuan emisi pending</p>
                             @endforelse
-                    {!!  !!}  !!} </div>
+                     </div>
                     </div>
                 </div>
-            </div>{!!  !!}
+            </div>
         </div>
     </main>
 </div>
