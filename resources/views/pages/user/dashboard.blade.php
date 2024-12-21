@@ -17,13 +17,14 @@
                         <!-- Ikon sesuai kategori -->
                         @if($kategori->kategori_emisi_karbon === 'transportasi')
                         <i class="fas fa-car fa-3x mb-3"></i>
-                        @elseif($kategori->kategori_emisi_karbon === 'energi')
-                        <i class="fas fa-bolt fa-3x mb-3"></i>
-                        @elseif($kategori->kategori_emisi_karbon === 'Sampah')
-                        <i class="fas fa-recycle fa-3x mb-3"></i> <!-- Ikon baru -->
+                        @elseif($kategori->kategori_emisi_karbon === 'listrik')
+                        <i class="fas fa-lightbulb fa-3x mb-3"></i> <!-- Ikon lampu untuk energi -->
+                        @elseif($kategori->kategori_emisi_karbon === 'sampah')
+                        <i class="fas fa-recycle fa-3x mb-3"></i>
                         @else
-                        <i class="fas fa-leaf fa-3x mb-3"></i>
+                        <i class="fas fa-globe fa-3x mb-3"></i> <!-- Ikon default -->
                         @endif
+
                         <h5 class="card-title">{{ ucfirst($kategori->kategori_emisi_karbon) }}</h5>
                         <p class="card-text display-6">
                             {{ number_format($kategori->total_emisi, 2) }}

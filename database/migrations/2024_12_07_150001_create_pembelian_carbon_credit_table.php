@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('kode_pembelian_carbon_credit')->unique();
             $table->decimal('jumlah_pembelian_carbon_credit', 10, 2);
             $table->date('tanggal_pembelian_carbon_credit');
-            $table->string('bukti_pembelian');
+            $table->string('bukti_pembelian')->nullable();
             $table->string('deskripsi');
             $table->foreignId('kode_manager')->constrained('managers')->onDelete('cascade');
             $table->foreignId('kode_admin')->constrained('admins')->onDelete('cascade');
