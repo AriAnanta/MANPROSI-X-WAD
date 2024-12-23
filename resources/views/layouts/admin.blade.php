@@ -111,13 +111,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/reports*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-cart me-2"></i> 
+                            <a class="nav-link {{ Request::is('admin/carbon_credit*') ? 'active' : '' }}" 
+                               href="{{ route('carbon_credit.index') }}">
+                                <i class="bi bi-cart me-2"></i>
                                 Pembelian Carbon Credit
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="{{ route('notifikasi.create') }}">
                                 <i class="bi bi-bell me-2"></i> 
                                 Buat Notifikasi
                             </a>
@@ -129,7 +130,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('admin/carbon_credit/report') ? 'active' : '' }}" 
+                               href="{{ route('carbon_credit.report') }}"
+                               target="_blank">
                                 <i class="bi bi-printer me-2"></i> 
                                 Cetak Laporan Pembelian Carbon Credit
                             </a>

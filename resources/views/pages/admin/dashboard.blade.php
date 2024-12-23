@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <main class="px-md-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2 text-success"> Dashboard Admin</h1>
+            <h1 class="h2 text-success">Dashboard Admin</h1>
         </div>
 
         <!-- Kartu Informasi Ringkasan -->
@@ -78,11 +78,13 @@
                         <tbody>
                             @foreach ($recentEmissions as $emission)
                                 <tr>
-                                    <td>{{ $emission->pengguna->nama_pengguna }}</td>
-                                    <td>{{ $emission->created_at->format('d M Y') }}</td>
-                                    <td>{{ $emission->kadar_emisi_karbon }} kg</td>
+                                    <td>{{ $emission->nama_user }}</td>
+                                    <td>{{ date('d M Y', strtotime($emission->created_at)) }}</td>
+                                    <td>{{ number_format($emission->kadar_emisi_karbon, 2) }} kg</td>
                                     <td>
-                                        <span class="badge bg-success">Terverifikasi</span>
+                                        <span class="badge bg-{{ $emission->status === 'approved' ? 'success' : ($emission->status === 'rejected' ? 'danger' : 'warning') }}">
+                                            {{ ucfirst($emission->status) }}
+                                        </span>
                                     </td>
                                 </tr>
                             @endforeach

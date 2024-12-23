@@ -2,18 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notifikasi;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Notifikasi;
+use App\Models\Pengguna;
+use PDF;
 
 class NotifikasiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $notif = Notifikasi::all();
-        return view('notifikasi.index', compact('notif'));
+        $query = Notifikasi::with('pengguna');
+
+        // Apply filters
+        if ($request->filled('tujuan')) {
+            $query->where('kode_user', $request->tujuan);
+        }
+        if ($request->filled('kategori')) {
+            $query->where('kategori_notifikasi', $request->kategori);
+        }
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->tanggal);
+        }
+
+        $notifikasi = $query->get();
+        $penggunas = Pengguna::all();
+
+        return view('notifikasi.index', compact('notifikasi', 'penggunas'));
     }
 
     /**
@@ -21,7 +40,8 @@ class NotifikasiController extends Controller
      */
     public function create()
     {
-        return view('notifikasi.create');
+        $users = DB::table('penggunas')->get(); // Ambil semua pengguna dari tabel 'penggunas'
+        return view('notifikasi.create', compact('users'));
     }
 
     /**
@@ -29,58 +49,157 @@ class NotifikasiController extends Controller
      */
     public function store(Request $request)
     {
-        $validateData = $request->validate([
-            'kode_notifikasi' => 'required|string|max:5|unique:notifikasi',
+        $validatedData = $request->validate([
             'kategori_notifikasi' => 'required|string',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
+            'kode_user' => 'required|string', // Bisa berupa kode spesifik atau "all"
         ]);
 
-        Notifikasi::create($validateData);
-        return redirect()->route('notifikasi.index')->with('success', 'Data Notifikasi Ditambahkan');
+        // Generate kode notifikasi
+        $lastNotif = DB::table('notifikasis')
+            ->where('kode_notifikasi', 'like', 'NTF-%')
+            ->orderBy('kode_notifikasi', 'desc')
+            ->first();
+
+        if ($lastNotif) {
+            $lastNumber = intval(substr($lastNotif->kode_notifikasi, 4));
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        $kode_notifikasi = 'NTF-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
+        if ($validatedData['kode_user'] === 'all') {
+            $validatedData['kode_user'] = NULL;
+        }
+
+        $kode_admin = Auth::guard('admin')->user()->kode_admin;
+
+        DB::table('notifikasis')->insert([
+            'kode_notifikasi' => $kode_notifikasi,
+            'kategori_notifikasi' => $validatedData['kategori_notifikasi'],
+            'deskripsi' => $validatedData['deskripsi'],
+            'tanggal' => $validatedData['tanggal'],
+            'kode_user' => $validatedData['kode_user'],
+            'kode_admin' => $kode_admin,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('notifikasi.index')->with('success', 'Notifikasi berhasil dibuat');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Notifikasi $notifikasi)
+    public function show($id)
     {
-        $notif = Notifikasi::findOrFail($notifikasi);
-        return view('notifikasi.create', compact('notif'));
+        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+
+        $notifikasi = DB::selectOne("
+            SELECT * FROM notifikasis 
+            WHERE id = ? AND kode_admin = ?",
+            [$id, $kodeAdmin]
+        );
+
+        if (!$notifikasi) {
+            abort(404);
+        }
+
+        return view('notifikasi.show', compact('notifikasi'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Notifikasi $notifikasi)
+    public function edit($id)
     {
-        $notif = Notifikasi::findOrFail($notifikasi);
-        return view('nitifikasi.edit', compact('notif'));
+        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+
+        $notifikasi = DB::selectOne("
+            SELECT * FROM notifikasis
+            WHERE id = ? AND kode_admin = ?",
+            [$id, $kodeAdmin]
+        );
+
+        if (!$notifikasi) {
+            abort(404);
+        }
+
+        return view('notifikasi.edit', compact('notifikasi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Notifikasi $notifikasi)
+    public function update(Request $request, $id)
     {
-        $notif = Notifikasi::findOrFail($notifikasi);
         $request->validate([
-            'kode_notifikasi'=>'required|unique:notifikasi,kode_notifikasi,'.$notif->id,
-            'kategori_notifikasi'=>'required|string',
-            'deskripsi'=>'required',
-            
+            'kode_notifikasi' => "required|string|max:5|unique:notifikasis,kode_notifikasi,{$id}",
+            'kategori_notifikasi' => 'required|string',
+            'tanggal' => 'required|date',
+            'deskripsi' => 'required|string',
         ]);
-        $notif->update($request->all());
-        return redirect()->route('notifikasi.index')->with('success','Data Notifikasi Diperbaharui');
+
+        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+
+        $updated = DB::update("
+            UPDATE notifikasis 
+            SET kode_notifikasi = ?, kategori_notifikasi = ?, tanggal = ?, deskripsi = ?, updated_at = NOW()
+            WHERE id = ? AND kode_admin = ?",
+            [
+                $request->kode_notifikasi,
+                $request->kategori_notifikasi,
+                $request->tanggal,
+                $request->deskripsi,
+                $id,
+                $kodeAdmin
+            ]
+        );
+
+        if (!$updated) {
+            abort(404);
+        }
+
+        return redirect()->route('notifikasi.index')->with('success', 'Data Notifikasi Diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Notifikasi $notifikasi)
+    public function destroy($id)
     {
-        $notif = Notifikasi::findOrFail($notifikasi);
-        $notif->delete();
-        return redirect()->route('notifikasi.index')->with('success','Data Notifikasi Dihapus');
+        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+
+        $notifikasi = DB::selectOne("
+            SELECT * FROM notifikasis 
+            WHERE id = ? AND kode_admin = ?",
+            [$id, $kodeAdmin]
+        );
+
+        if (!$notifikasi) {
+            abort(404);
+        }
+
+        $deleted = DB::delete("
+            DELETE FROM notifikasis 
+            WHERE id = ? AND kode_admin = ?",
+            [$id, $kodeAdmin]
+        );
+
+        if (!$deleted) {
+            abort(404);
+        }
+
+        return redirect()->route('notifikasi.index')->with('success', 'Data Notifikasi Dihapus');
+    }
+
+    public function report()
+    {
+        $notifikasi = Notifikasi::with('pengguna')->get();
+        $pdf = PDF::loadView('notifikasi.report', compact('notifikasi'));
+        return $pdf->stream('laporan-notifikasi.pdf');
     }
 }

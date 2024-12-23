@@ -7,9 +7,9 @@
             <div class="card shadow-sm">
                 <div class="card-body text-center">
                     <h4 class="mb-4 text-danger">Hapus Data Emisi Karbon</h4>
-                    <p>Apakah Anda yakin ingin menghapus data dengan kode emisi karbon <strong>{{ $emisi->kode_emisi_karbon }}</strong>?</p>
+                    <p>Apakah Anda yakin ingin menghapus data dengan kode emisi karbon <strong>{{ $emisiCarbon->kode_emisi_karbon }}</strong>?</p>
                     
-                    <form action="{{ route('emisicarbon.destroy', $emisiCarbon->id) }}" method="POST">
+                    <form action="{{ route('emisicarbon.destroy', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
                         @csrf
                         @method('DELETE')
 

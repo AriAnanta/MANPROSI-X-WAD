@@ -88,8 +88,8 @@
                             @forelse($emisiPending as $emisi)
                             <div class="list-group-item">
                                 <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1 text-success">{{ $emisi->pengguna->nama_user }}</h6>
-                                    <small>{{ $emisi->tanggal_emisi->format('d/m/Y') }}</small>
+                                    <h6 class="mb-1 text-success">{{ $emisi->nama_user }}</h6>
+                                    <small>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</small>
                                 </div>
                                 <p class="mb-1 text-muted">{{ ucfirst($emisi->kategori_emisi_karbon) }}</p>
                                 <p class="mb-1">{{ number_format($emisi->kadar_emisi_karbon, 2) }} kg CO<sub>2</sub></p>

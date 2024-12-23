@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EmisiCarbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class EmisiCarbonController extends Controller
 {
     public function index()
     {
-        $emisiCarbons = EmisiCarbon::where('kode_user', Auth::guard('pengguna')->user()->kode_user)
-                                  ->orderBy('created_at', 'desc')
-                                  ->paginate(10);
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
+        $emisiCarbons = DB::select("
+            SELECT * FROM emisi_carbons 
+            WHERE kode_user = ? 
+            ORDER BY created_at DESC
+            LIMIT 10", 
+            [$kodeUser]
+        );
         return view('emisicarbon.index', compact('emisiCarbons'));
     }
 
@@ -31,18 +36,25 @@ class EmisiCarbonController extends Controller
             'deskripsi' => 'required|string'
         ]);
 
-        // Generate kode emisi karbon
         $kodeEmisi = 'EMC-' . Str::random(6);
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
 
-        EmisiCarbon::create([
-            'kode_emisi_karbon' => $kodeEmisi,
-            'kategori_emisi_karbon' => $request->kategori_emisi_karbon,
-            'tanggal_emisi' => $request->tanggal_emisi,
-            'kadar_emisi_karbon' => $request->kadar_emisi_karbon,
-            'deskripsi' => $request->deskripsi,
-            'status' => 'pending',
-            'kode_user' => Auth::guard('pengguna')->user()->kode_user
-        ]);
+        DB::insert("
+            INSERT INTO emisi_carbons (
+                kode_emisi_karbon, kategori_emisi_karbon, tanggal_emisi,
+                kadar_emisi_karbon, deskripsi, status, kode_user,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())",
+            [
+                $kodeEmisi,
+                $request->kategori_emisi_karbon,
+                $request->tanggal_emisi,
+                $request->kadar_emisi_karbon,
+                $request->deskripsi,
+                'pending',
+                $kodeUser
+            ]
+        );
 
         return redirect()->route('emisicarbon.index')
                         ->with('success', 'Data emisi karbon berhasil ditambahkan.');
@@ -50,9 +62,18 @@ class EmisiCarbonController extends Controller
 
     public function edit($kode_emisi_karbon)
     {
-        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
-                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
-                                 ->firstOrFail();
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
+        $emisiCarbon = DB::selectOne("
+            SELECT * FROM emisi_carbons 
+            WHERE kode_emisi_karbon = ? 
+            AND kode_user = ?", 
+            [$kode_emisi_karbon, $kodeUser]
+        );
+
+        if (!$emisiCarbon) {
+            abort(404);
+        }
+
         return view('emisicarbon.edit', compact('emisiCarbon'));
     }
 
@@ -65,16 +86,30 @@ class EmisiCarbonController extends Controller
             'deskripsi' => 'required|string'
         ]);
 
-        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
-                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
-                                 ->firstOrFail();
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
         
-        $emisiCarbon->update([
-            'tanggal_emisi' => $request->tanggal_emisi,
-            'kategori_emisi_karbon' => $request->kategori_emisi_karbon,
-            'kadar_emisi_karbon' => $request->kadar_emisi_karbon,
-            'deskripsi' => $request->deskripsi
-        ]);
+        $updated = DB::update("
+            UPDATE emisi_carbons 
+            SET tanggal_emisi = ?,
+                kategori_emisi_karbon = ?,
+                kadar_emisi_karbon = ?,
+                deskripsi = ?,
+                updated_at = NOW()
+            WHERE kode_emisi_karbon = ? 
+            AND kode_user = ?",
+            [
+                $request->tanggal_emisi,
+                $request->kategori_emisi_karbon,
+                $request->kadar_emisi_karbon,
+                $request->deskripsi,
+                $kode_emisi_karbon,
+                $kodeUser
+            ]
+        );
+
+        if (!$updated) {
+            abort(404);
+        }
 
         return redirect()->route('emisicarbon.index')
                         ->with('success', 'Data emisi karbon berhasil diperbarui.');
@@ -82,11 +117,18 @@ class EmisiCarbonController extends Controller
 
     public function destroy($kode_emisi_karbon)
     {
-        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
-                                 ->where('kode_user', Auth::guard('pengguna')->user()->kode_user)
-                                 ->firstOrFail();
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
         
-        $emisiCarbon->delete();
+        $deleted = DB::delete("
+            DELETE FROM emisi_carbons 
+            WHERE kode_emisi_karbon = ? 
+            AND kode_user = ?",
+            [$kode_emisi_karbon, $kodeUser]
+        );
+
+        if (!$deleted) {
+            abort(404);
+        }
 
         return redirect()->route('emisicarbon.index')
                         ->with('success', 'Data emisi karbon berhasil dihapus.');
@@ -94,7 +136,16 @@ class EmisiCarbonController extends Controller
 
     public function editStatus($kode_emisi_karbon)
     {
-        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)->firstOrFail();
+        $emisiCarbon = DB::selectOne("
+            SELECT * FROM emisi_carbons 
+            WHERE kode_emisi_karbon = ?", 
+            [$kode_emisi_karbon]
+        );
+
+        if (!$emisiCarbon) {
+            abort(404);
+        }
+
         return view('emisicarbon.edit_status', compact('emisiCarbon'));
     }
 
@@ -104,10 +155,16 @@ class EmisiCarbonController extends Controller
             'status' => 'required|in:approved,pending,rejected',
         ]);
 
-        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)->firstOrFail();
-        $emisiCarbon->status = $request->status;
-        $emisiCarbon->kode_admin = Auth::guard('admin')->user()->kode_admin;
-        $emisiCarbon->save();
+        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+        
+        DB::update("
+            UPDATE emisi_carbons 
+            SET status = ?,
+                kode_admin = ?,
+                updated_at = NOW()
+            WHERE kode_emisi_karbon = ?",
+            [$request->status, $kodeAdmin, $kode_emisi_karbon]
+        );
 
         return redirect()->route('admin.emissions.index')
                         ->with('success', 'Status emisi karbon berhasil diperbarui.');
@@ -115,7 +172,12 @@ class EmisiCarbonController extends Controller
 
     public function adminIndex()
     {
-        $emisiCarbons = EmisiCarbon::orderBy('created_at', 'desc')->paginate(10);
+        $emisiCarbons = DB::select("
+            SELECT * FROM emisi_carbons 
+            ORDER BY created_at DESC 
+            LIMIT 10"
+        );
+        
         return view('emisicarbon.admin.index', compact('emisiCarbons'));
     }
 }

@@ -1,42 +1,26 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class EmisiCarbon extends Model
+class EmisiCarbon
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'kode_emisi_karbon',
-        'kategori_emisi_karbon',
-        'tanggal_emisi',
-        'kadar_emisi_karbon',
-        'deskripsi',
-        'status',
-        'kode_manager',
-        'kode_user',
-        'kode_admin'
-    ];
-
-    protected $casts = [
-        'tanggal_emisi' => 'date',
-        'kadar_emisi_karbon' => 'decimal:2'
-    ];
-
-    public function admin()
+    public static function getTable()
     {
-        return $this->belongsTo(Admin::class, 'kode_admin', 'kode_admin');
+        return 'emisi_carbons';
     }
 
-    public function manager()
+    public static function getColumns()
     {
-        return $this->belongsTo(Manager::class, 'kode_manager', 'kode_manager');
-    }
-
-    public function pengguna()
-    {
-        return $this->belongsTo(Pengguna::class, 'kode_user', 'kode_user');
+        return [
+            'kode_emisi_karbon',
+            'kategori_emisi_karbon',
+            'tanggal_emisi',
+            'kadar_emisi_karbon',
+            'deskripsi',
+            'status',
+            'kode_manager',
+            'kode_user',
+            'kode_admin'
+        ];
     }
 }

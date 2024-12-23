@@ -41,9 +41,9 @@
                         <div class="mb-4">
                             <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                             <select class="form-select" id="status" name="status" required>
-                                <option value="approved" {{ $emisiCarbon->status == 'approved' ? 'selected' : '' }}>Approved</option>
-                                <option value="pending" {{ $emisiCarbon->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="rejected" {{ $emisiCarbon->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                <option value="approved" {{ $emisiCarbon->status === 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="pending" {{ $emisiCarbon->status === 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="rejected" {{ $emisiCarbon->status === 'rejected' ? 'selected' : '' }}>Rejected</option>
                             </select>
                         </div>
 

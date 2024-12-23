@@ -1,41 +1,35 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('emisi_carbons', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode_emisi_karbon')->unique();
-            $table->string('kategori_emisi_karbon');
-            $table->date('tanggal_emisi');
-            $table->decimal('kadar_emisi_karbon', 10, 2);
-            $table->string('deskripsi');
-            $table->string('status');
-            $table->string('kode_manager')->nullable();
-            $table->string('kode_user')->nullable();
-            $table->string('kode_admin')->nullable();
-            $table->timestamps();
-
-            // Menambahkan foreign key constraints
-            $table->foreign('kode_manager')->references('kode_manager')->on('managers')->onDelete('cascade');
-            $table->foreign('kode_user')->references('kode_user')->on('penggunas')->onDelete('cascade');
-            $table->foreign('kode_admin')->references('kode_admin')->on('admins')->onDelete('cascade');
-        });
+        DB::statement("
+            CREATE TABLE emisi_carbons (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                kode_emisi_karbon VARCHAR(255) UNIQUE,
+                kategori_emisi_karbon VARCHAR(255),
+                tanggal_emisi DATE,
+                kadar_emisi_karbon DECIMAL(10,2),
+                deskripsi VARCHAR(255),
+                status VARCHAR(255),
+                kode_manager VARCHAR(255),
+                kode_user VARCHAR(255),
+                kode_admin VARCHAR(255),
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (kode_manager) REFERENCES managers(kode_manager) ON DELETE CASCADE,
+                FOREIGN KEY (kode_user) REFERENCES penggunas(kode_user) ON DELETE CASCADE,
+                FOREIGN KEY (kode_admin) REFERENCES admins(kode_admin) ON DELETE CASCADE
+            )
+        ");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('emisi_carbons');
+        DB::statement('DROP TABLE IF EXISTS emisi_carbons');
     }
 };

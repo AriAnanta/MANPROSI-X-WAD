@@ -2,17 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
 class Admin extends Authenticatable
 {
-    use HasFactory;
-    use Notifiable;
-
-    protected $guard = 'admin';
-
+    protected $table = 'admins';
+    
     protected $fillable = [
         'kode_admin',
         'nama_admin', 
@@ -26,15 +20,19 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 
-    public function emisi_carbon(){
-        return $this->hasMany(EmisiCarbon::class,'kode_admin');
+    public function getTable()
+    {
+        return $this->table;
     }
 
-    public function pembelian_carbon_credit(){
-        return $this->hasMany(PembelianCarbonCredit::class,'kode_admin');
-    }
-
-    public function notifikasi(){
-        return $this->hasMany(Notifikasi::class,'kode_admin');
+    public static function getColumns()
+    {
+        return [
+            'kode_admin',
+            'nama_admin',
+            'email',
+            'password',
+            'no_telepon'
+        ];
     }
 }
