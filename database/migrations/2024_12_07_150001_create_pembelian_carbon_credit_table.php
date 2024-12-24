@@ -1,34 +1,32 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('pembelian_carbon_credits', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode_pembelian_carbon_credit')->unique();
-            $table->decimal('jumlah_pembelian_carbon_credit', 10, 2);
-            $table->date('tanggal_pembelian_carbon_credit');
-            $table->string('bukti_pembelian')->nullable();
-            $table->string('deskripsi');
-            $table->foreignId('kode_manager')->constrained('managers')->onDelete('cascade');
-            $table->foreignId('kode_admin')->constrained('admins')->onDelete('cascade');
-            $table->timestamps();
-        });
+        DB::statement("
+            CREATE TABLE pembelian_carbon_credits (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                kode_pembelian_carbon_credit VARCHAR(255) UNIQUE,
+                jumlah_pembelian_carbon_credit DECIMAL(10,2),
+                tanggal_pembelian_carbon_credit DATE,
+                bukti_pembelian VARCHAR(255),
+                deskripsi VARCHAR(255),
+                kode_manager VARCHAR(255),
+                kode_admin VARCHAR(255),
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                FOREIGN KEY (kode_manager) REFERENCES managers(kode_manager) ON DELETE CASCADE,
+                FOREIGN KEY (kode_admin) REFERENCES admins(kode_admin) ON DELETE CASCADE
+            )
+        ");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('pembelian_carbon_credits');
+        DB::statement('DROP TABLE IF EXISTS pembelian_carbon_credits');
     }
 };

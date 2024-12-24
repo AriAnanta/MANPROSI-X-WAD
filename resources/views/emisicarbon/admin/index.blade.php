@@ -34,11 +34,11 @@
                                 @forelse($emisiCarbons as $emisi)
                                     <tr>
                                         <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($emisi->tanggal_emisi)->format('d/m/Y') }}</td>
+                                        <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
                                         <td class="text-end">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
                                         <td>{{ $emisi->deskripsi }}</td>
                                         <td class="text-center">
-                                            <span class="badge bg-{{ $emisi->status == 'approved' ? 'success' : ($emisi->status == 'rejected' ? 'danger' : 'warning') }}">
+                                            <span class="badge bg-{{ $emisi->status === 'approved' ? 'success' : ($emisi->status === 'rejected' ? 'danger' : 'warning') }}">
                                                 {{ ucfirst($emisi->status) }}
                                             </span>
                                         </td>
@@ -56,10 +56,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-
-                    <div class="d-flex justify-content-end mt-3">
-                        {{ $emisiCarbons->links() }}
                     </div>
                 </div>
             </div>

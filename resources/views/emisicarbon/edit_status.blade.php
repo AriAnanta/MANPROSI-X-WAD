@@ -9,7 +9,7 @@
                     <h4 class="mb-0 text-center fw-semibold">Edit Status Emisi Karbon</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.emissions.update_status', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
+                    <form action="{{ route('emisicarbon.updateStatus', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -38,9 +38,9 @@
                             <textarea class="form-control" rows="4" disabled>{{ $emisiCarbon->deskripsi }}</textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
-                            <select class="form-select" id="status" name="status" required>
+                        <div class="form-group">
+                            <label for="status">Status Emisi Karbon</label>
+                            <select name="status" id="status" class="form-control">
                                 <option value="approved" {{ $emisiCarbon->status == 'approved' ? 'selected' : '' }}>Approved</option>
                                 <option value="pending" {{ $emisiCarbon->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="rejected" {{ $emisiCarbon->status == 'rejected' ? 'selected' : '' }}>Rejected</option>

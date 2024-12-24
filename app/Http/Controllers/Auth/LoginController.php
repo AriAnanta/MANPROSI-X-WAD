@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Admin;
-use App\Models\Manager;
-use App\Models\Pengguna;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+
 class LoginController extends Controller
 {
     public function showLoginForm()
@@ -24,11 +24,20 @@ class LoginController extends Controller
             'role' => 'required|in:admin,manager,pengguna'
         ]);
 
-        $credentials = $request->only('email', 'password');
-        $guard = $request->role;
+        $table = $request->role . 's';
+        if ($request->role === 'pengguna') {
+            $table = 'penggunas';
+        }
 
-        if (Auth::guard($guard)->attempt($credentials)) {
-            return redirect()->intended($this->redirectTo($guard));
+        $user = DB::selectOne("
+            SELECT * FROM {$table} 
+            WHERE email = ?", 
+            [$request->email]
+        );
+
+        if ($user && Hash::check($request->password, $user->password)) {
+            Auth::guard($request->role)->loginUsingId($user->id);
+            return redirect()->intended($this->redirectTo($request->role));
         }
 
         return back()->withErrors([
