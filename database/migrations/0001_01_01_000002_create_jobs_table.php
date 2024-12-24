@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,38 +10,45 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('queue')->index();
-            $table->longText('payload');
-            $table->unsignedTinyInteger('attempts');
-            $table->unsignedInteger('reserved_at')->nullable();
-            $table->unsignedInteger('available_at');
-            $table->unsignedInteger('created_at');
-        });
+        DB::statement("
+            CREATE TABLE jobs (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                queue VARCHAR(255),
+                payload LONGTEXT,
+                attempts TINYINT UNSIGNED,
+                reserved_at INT UNSIGNED NULL,
+                available_at INT UNSIGNED,
+                created_at INT UNSIGNED,
+                INDEX jobs_queue_index (queue)
+            )
+        ");
 
-        Schema::create('job_batches', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->string('name');
-            $table->integer('total_jobs');
-            $table->integer('pending_jobs');
-            $table->integer('failed_jobs');
-            $table->longText('failed_job_ids');
-            $table->mediumText('options')->nullable();
-            $table->integer('cancelled_at')->nullable();
-            $table->integer('created_at');
-            $table->integer('finished_at')->nullable();
-        });
+        DB::statement("
+            CREATE TABLE job_batches (
+                id VARCHAR(255) PRIMARY KEY,
+                name VARCHAR(255),
+                total_jobs INT,
+                pending_jobs INT,
+                failed_jobs INT,
+                failed_job_ids LONGTEXT,
+                options MEDIUMTEXT NULL,
+                cancelled_at INT NULL,
+                created_at INT,
+                finished_at INT NULL
+            )
+        ");
 
-        Schema::create('failed_jobs', function (Blueprint $table) {
-            $table->id();
-            $table->string('uuid')->unique();
-            $table->text('connection');
-            $table->text('queue');
-            $table->longText('payload');
-            $table->longText('exception');
-            $table->timestamp('failed_at')->useCurrent();
-        });
+        DB::statement("
+            CREATE TABLE failed_jobs (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                uuid VARCHAR(255) UNIQUE,
+                connection TEXT,
+                queue TEXT,
+                payload LONGTEXT,
+                exception LONGTEXT,
+                failed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
     }
 
     /**
@@ -50,8 +56,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jobs');
-        Schema::dropIfExists('job_batches');
-        Schema::dropIfExists('failed_jobs');
+        DB::statement('DROP TABLE IF EXISTS failed_jobs');
+        DB::statement('DROP TABLE IF EXISTS job_batches');
+        DB::statement('DROP TABLE IF EXISTS jobs');
     }
 };

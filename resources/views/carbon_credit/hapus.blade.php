@@ -1,4 +1,4 @@
-@extends('layouts.user')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container mt-6">
@@ -6,10 +6,10 @@
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    <h4 class="mb-4 text-danger">Hapus Data Emisi Karbon</h4>
-                    <p>Apakah Anda yakin ingin menghapus data dengan kode emisi karbon <strong>{{ $emisiCarbon->kode_emisi_karbon }}</strong>?</p>
-                    
-                    <form action="{{ route('emisicarbon.destroy', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
+                    <h4 class="mb-4 text-danger">Hapus Data Pembelian Carbon Credit</h4>
+                    <p>Apakah Anda yakin ingin menghapus data dengan kode pembelian carbon credit <strong>{{ $pembelianCarbonCredit->kode_pembelian_carbon_credit }}</strong>?</p>
+                        
+                    <form action="{{ route('carbon_credit.destroy', $pembelianCarbonCredit->kode_pembelian_carbon_credit) }}" method="POST">
                         @csrf
                         @method('DELETE')
 

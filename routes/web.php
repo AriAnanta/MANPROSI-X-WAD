@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CarbonCreditController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\PembelianCarbonCreditController;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -47,6 +48,48 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/emisicarbon', [EmisiCarbonController::class, 'adminIndex'])->name('admin.emissions.index');
         Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit_status');
         Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update_status');
+
+        // CRUD Pembelian Carbon Credit
+        Route::get('/carbon_credit', [PembelianCarbonCreditController::class, 'index'])
+            ->name('carbon_credit.index');
+            
+        Route::get('/carbon_credit/create', [PembelianCarbonCreditController::class, 'create'])
+            ->name('carbon_credit.create');
+            
+        Route::post('/carbon_credit', [PembelianCarbonCreditController::class, 'store'])
+            ->name('carbon_credit.store');
+            
+        Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit', [PembelianCarbonCreditController::class, 'edit'])
+            ->name('carbon_credit.edit');
+            
+        Route::put('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'update'])
+            ->name('carbon_credit.update');
+            
+        Route::delete('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'destroy'])
+            ->name('carbon_credit.destroy');
+
+        // Edit Status Pembelian Carbon Credit
+        Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit-status', [PembelianCarbonCreditController::class, 'editStatus'])
+            ->name('carbon_credit.edit_status');
+            
+        Route::put('/carbon_credit/{kode_pembelian_carbon_credit}/update-status', [PembelianCarbonCreditController::class, 'updateStatus'])
+            ->name('carbon_credit.update_status');
+
+        // Route untuk download laporan pembelian carbon credit
+        Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadReport'])
+            ->name('carbon_credit.report');
+
+        // Route untuk download laporan emisi karbon
+        Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])
+            ->name('admin.emissions.list_report');
+        Route::get('/emisicarbon/report', [EmisiCarbonController::class, 'downloadReport'])
+            ->name('admin.emissions.report');
+
+        // Route untuk laporan pembelian carbon credit
+        Route::get('/carbon_credit/list-report', [PembelianCarbonCreditController::class, 'listReport'])
+            ->name('carbon_credit.list_report');
+        Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadSelectedReport'])
+            ->name('carbon_credit.report');
     });
 });
 
