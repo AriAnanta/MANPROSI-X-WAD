@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,17 +10,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cache', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->mediumText('value');
-            $table->integer('expiration');
-        });
+        DB::statement("
+            CREATE TABLE cache (
+                `key` VARCHAR(255) PRIMARY KEY,
+                value MEDIUMTEXT,
+                expiration INT
+            )
+        ");
 
-        Schema::create('cache_locks', function (Blueprint $table) {
-            $table->string('key')->primary();
-            $table->string('owner');
-            $table->integer('expiration');
-        });
+        DB::statement("
+            CREATE TABLE cache_locks (
+                `key` VARCHAR(255) PRIMARY KEY,
+                owner VARCHAR(255),
+                expiration INT
+            )
+        ");
     }
 
     /**
@@ -29,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cache');
-        Schema::dropIfExists('cache_locks');
+        DB::statement('DROP TABLE IF EXISTS cache_locks');
+        DB::statement('DROP TABLE IF EXISTS cache');
     }
 };

@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
-use App\Models\Manager;
-use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class RegisterController extends Controller
 {
@@ -37,13 +35,21 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Pengguna::create([
-                'kode_user' => 'USR-' . Str::random(6),
-                'nama_user' => $request->nama_user,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'no_telepon' => $request->no_telepon
-            ]);
+            $kodeUser = 'USR-' . Str::random(6);
+            
+            DB::insert("
+                INSERT INTO penggunas (
+                    kode_user, nama_user, email, password, 
+                    no_telepon, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+                [
+                    $kodeUser,
+                    $request->nama_user,
+                    $request->email,
+                    Hash::make($request->password),
+                    $request->no_telepon
+                ]
+            );
 
             return redirect()->route('login')
                            ->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
@@ -63,13 +69,21 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Admin::create([
-                'kode_admin' => 'ADM-' . Str::random(6),
-                'nama_admin' => $request->nama_admin,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'no_telepon' => $request->no_telepon
-            ]);
+            $kodeAdmin = 'ADM-' . Str::random(6);
+            
+            DB::insert("
+                INSERT INTO admins (
+                    kode_admin, nama_admin, email, password, 
+                    no_telepon, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+                [
+                    $kodeAdmin,
+                    $request->nama_admin,
+                    $request->email,
+                    Hash::make($request->password),
+                    $request->no_telepon
+                ]
+            );
 
             return redirect()->route('login')
                            ->with('success', 'Registrasi admin berhasil! Silakan login dengan akun Anda.');
@@ -89,13 +103,21 @@ class RegisterController extends Controller
         ]);
 
         try {
-            Manager::create([
-                'kode_manager' => 'MGR-' . Str::random(6),
-                'nama_manager' => $request->nama_manager,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'no_telepon' => $request->no_telepon
-            ]);
+            $kodeManager = 'MGR-' . Str::random(6);
+            
+            DB::insert("
+                INSERT INTO managers (
+                    kode_manager, nama_manager, email, password, 
+                    no_telepon, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+                [
+                    $kodeManager,
+                    $request->nama_manager,
+                    $request->email,
+                    Hash::make($request->password),
+                    $request->no_telepon
+                ]
+            );
 
             return redirect()->route('login')
                            ->with('success', 'Registrasi manager berhasil! Silakan login dengan akun Anda.');
