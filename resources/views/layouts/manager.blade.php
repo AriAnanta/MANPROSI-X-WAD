@@ -123,6 +123,13 @@
                                 Faktor Emisi
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/kompensasi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.kompensasi.index') }}">
+                                <i class="bi bi-arrow-left-right me-2"></i>
+                                Kompensasi Emisi
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

@@ -6,6 +6,7 @@ use App\Http\Controllers\EmisiCarbonController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Manager\FaktorEmisiController;
+use App\Http\Controllers\KompensasiEmisiController;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -48,13 +49,11 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit_status');
         Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update_status');
 
-         // Route untuk download laporan emisi karbon
-         Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])
-         ->name('admin.emissions.list_report');
-     Route::get('/admin/emissions/selected-report', [EmisiCarbonController::class, 'downloadSelectedReport'])
-         ->name('admin.emissions.selected.report');
-     Route::get('/emisicarbon/report', [EmisiCarbonController::class, 'downloadReport'])
-         ->name('admin.emissions.report');
+        // Route untuk download laporan emisi karbon
+        Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])
+            ->name('admin.emissions.list_report');
+        Route::get('/emisicarbon/report', [EmisiCarbonController::class, 'downloadReport'])
+            ->name('admin.emissions.report');
     });
 
     // Route untuk update status emisi karbon
@@ -84,7 +83,13 @@ Route::middleware(['auth:manager'])->group(function () {
                 'update' => 'manager.faktor-emisi.update',
                 'destroy' => 'manager.faktor-emisi.destroy',
             ]);
-        
+        // Routes untuk Kompensasi Emisi
+        Route::prefix('kompensasi')->group(function () {
+            Route::get('/', [KompensasiEmisiController::class, 'index'])
+                 ->name('manager.kompensasi.index');
+            Route::post('/', [KompensasiEmisiController::class, 'store'])
+                 ->name('manager.kompensasi.store');
+        });
        
     });
 });
