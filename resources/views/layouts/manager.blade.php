@@ -116,6 +116,13 @@
                                 Pengaturan
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/faktor-emisi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.faktor-emisi.index') }}">
+                                <i class="bi bi-calculator me-2"></i>
+                                Faktor Emisi
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

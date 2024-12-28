@@ -26,7 +26,9 @@
                                     <th>No</th>
                                     <th>Tanggal</th>
                                     <th>Kategori Emisi</th>
-                                    <th>Kadar Emisi (kg CO2)</th>
+                                    <th>Sub Kategori</th>
+                                    <th>Nilai Aktivitas</th>
+                                    <th>Kadar Emisi (kg CO₂)</th>
                                     <th>Deskripsi</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
@@ -38,7 +40,31 @@
                                         <td class="text-center">{{ $index + 1 }}</td>
                                         <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
                                         <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
-                                        <td class="text-end">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
+                                        <td>{{ ucfirst($emisi->sub_kategori) }}</td>
+                                        <td>{{ number_format($emisi->nilai_aktivitas, 2) }}
+                                            @switch($emisi->kategori_emisi_karbon)
+                                                @case('transportasi')
+                                                    km
+                                                    @break
+                                                @case('listrik')
+                                                    kWh
+                                                    @break
+                                                @case('sampah')
+                                                    kg
+                                                    @break
+                                                @case('air')
+                                                    m³
+                                                    @break
+                                                @case('gas')
+                                                    kg
+                                                    @break
+                                                @default
+                                                    -
+                                            @endswitch
+                                        </td>
+                                        <td class="text-center">
+                                            {{ number_format($emisi->kadar_emisi_karbon, 2) }} kg CO₂e
+                                        </td>
                                         <td>{{ $emisi->deskripsi }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $emisi->status === 'pending' ? 'warning' : 'success' }}">

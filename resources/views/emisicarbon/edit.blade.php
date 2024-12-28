@@ -31,24 +31,40 @@
                             <select class="form-select @error('kategori_emisi_karbon') is-invalid @enderror" 
                                     id="kategori_emisi_karbon" name="kategori_emisi_karbon" required>
                                 <option value="">Pilih Kategori Emisi</option>
-                                <option value="transportasi" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'transportasi' ? 'selected' : '' }}>Transportasi</option>
-                                <option value="listrik" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'listrik' ? 'selected' : '' }}>Penggunaan Listrik</option>
-                                <option value="sampah" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'sampah' ? 'selected' : '' }}>Pembuangan Sampah</option>
-                                <option value="lainnya" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                @foreach($kategoriEmisi as $kategori => $faktorList)
+                                    <option value="{{ $kategori }}" {{ old('kategori_emisi_karbon', $emisiCarbon->kategori_emisi_karbon) == $kategori ? 'selected' : '' }}>
+                                        {{ ucfirst($kategori) }}
+                                    </option>
+                                @endforeach
                             </select>
                             @error('kategori_emisi_karbon')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <!-- Input Kadar Emisi -->
+                        <!-- Input Sub Kategori -->
                         <div class="mb-4">
-                            <label for="kadar_emisi_karbon" class="form-label">Kadar Emisi (kg CO₂)</label>
-                            <input type="number" step="0.01" 
-                                   class="form-control @error('kadar_emisi_karbon') is-invalid @enderror" 
-                                   id="kadar_emisi_karbon" name="kadar_emisi_karbon" 
-                                   value="{{ old('kadar_emisi_karbon', $emisiCarbon->kadar_emisi_karbon) }}" required>
-                            @error('kadar_emisi_karbon')
+                            <label for="sub_kategori" class="form-label">Sub Kategori</label>
+                            <select class="form-select @error('sub_kategori') is-invalid @enderror" 
+                                    id="sub_kategori" name="sub_kategori" required>
+                                <option value="">Pilih Sub Kategori</option>
+                            </select>
+                            @error('sub_kategori')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Input Nilai Aktivitas -->
+                        <div class="mb-4">
+                            <label for="nilai_aktivitas" class="form-label">Nilai Aktivitas</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" 
+                                       class="form-control @error('nilai_aktivitas') is-invalid @enderror" 
+                                       id="nilai_aktivitas" name="nilai_aktivitas" 
+                                       value="{{ old('nilai_aktivitas', $emisiCarbon->nilai_aktivitas) }}" required>
+                                <span class="input-group-text" id="satuan-addon">km</span>
+                            </div>
+                            @error('nilai_aktivitas')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -114,5 +130,71 @@
         background: linear-gradient(90deg, #28a745, #218838);
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+const kategoriSelect = document.getElementById('kategori_emisi_karbon');
+const subKategoriSelect = document.getElementById('sub_kategori');
+const satuanAddon = document.getElementById('satuan-addon');
+
+// Data faktor emisi dari database
+const faktorEmisiData = @json($kategoriEmisi);
+const currentSubKategori = '{{ old('sub_kategori', $emisiCarbon->sub_kategori) }}';
+
+function updateSubKategori() {
+    const kategori = kategoriSelect.value;
+    subKategoriSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+    
+    if (kategori && faktorEmisiData[kategori]) {
+        faktorEmisiData[kategori].forEach(faktor => {
+            const option = new Option(
+                faktor.sub_kategori, 
+                faktor.sub_kategori,
+                false,
+                faktor.sub_kategori === currentSubKategori
+            );
+            subKategoriSelect.add(option);
+        });
+        
+        if (faktorEmisiData[kategori].length > 0) {
+            satuanAddon.textContent = faktorEmisiData[kategori][0].satuan;
+        }
+    }
+}
+
+// Set initial values
+updateSubKategori();
+
+// Event listeners
+kategoriSelect.addEventListener('change', updateSubKategori);
+
+// Fungsi untuk menghitung emisi (sama seperti di create.blade.php)
+function hitungEmisi() {
+    const kategori = kategoriSelect.value;
+    const subKategori = subKategoriSelect.value;
+    const nilaiAktivitas = parseFloat(document.getElementById('nilai_aktivitas').value) || 0;
+    
+    if (kategori && subKategori && nilaiAktivitas > 0) {
+        const faktor = faktorEmisiData[kategori].find(f => f.sub_kategori === subKategori);
+        if (faktor) {
+            const hasil = nilaiAktivitas * faktor.nilai_faktor;
+            document.querySelector('.hasil-konversi').innerHTML = `
+                <div class="alert alert-info">
+                    <strong>Hasil Konversi:</strong><br>
+                    ${nilaiAktivitas.toFixed(2)} ${faktor.satuan} × 
+                    ${faktor.nilai_faktor} kg CO₂/satuan = 
+                    ${hasil.toFixed(2)} kg CO₂e
+                </div>
+            `;
+        }
+    }
+}
+
+// Event listeners untuk perhitungan otomatis
+kategoriSelect.addEventListener('change', hitungEmisi);
+subKategoriSelect.addEventListener('change', hitungEmisi);
+document.getElementById('nilai_aktivitas').addEventListener('input', hitungEmisi);
+</script>
 @endpush
 @endsection
