@@ -19,7 +19,7 @@
             z-index: 100;
             padding: 48px 0 0;
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #198754; /* Warna hijau */
+            background-color: #198754;
             color: white;
         }
 
@@ -30,7 +30,7 @@
         }
 
         .sidebar .nav-link.active {
-            background-color: #157347; /* Warna hijau lebih gelap */
+            background-color: #157347; 
             color: white;
         }
 
@@ -40,7 +40,7 @@
         }
 
         .navbar {
-            background-color: #f8f9fa; /* Warna light */
+            background-color: #f8f9fa;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
@@ -66,12 +66,12 @@
             </button>
             
             <!-- Nama Brand -->
-            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Manager</a>
+            <a class="navbar-brand mb-0 h1" href="#"></a>
 
-            <!-- Dropdown Profil -->
-            <div class="d-flex align-items-center">
+            <!-- Existing Profile Dropdown -->
+            <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
+                    <i class="bi bi-person-circle"></i> {{ Auth::guard('manager')->user()->nama_manager }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="#">Profile</a></li>
@@ -116,6 +116,43 @@
                                 Pengaturan
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/faktor-emisi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.faktor-emisi.index') }}">
+                                <i class="bi bi-calculator me-2"></i>
+                                Faktor Emisi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+<<<<<<< HEAD
+                            <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
+                               href="{{ route('manager.carbon_credit.index') }}">
+                                <i class="bi bi-currency-exchange me-2"></i>
+                                Lihat Pembelian Carbon Credit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
+                            <a class="nav-link {{ Request::is('manager/kompensasi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.kompensasi.index') }}">
+                                <i class="bi bi-arrow-left-right me-2"></i>
+                                Kompensasi Emisi
+                            </a>
+                        </li>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
+                               href="{{ route('manager.carbon_credit.index') }}">
+                                <i class="bi bi-currency-exchange me-2"></i>
+                                Lihat Pembelian Carbon Credit
+                            </a>
+                        </li>
+=======
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
                     </ul>
                 </div>
             </nav>

@@ -27,8 +27,8 @@
                         <i class="fas fa-cloud fa-3x mb-3"></i>
                         <h5 class="card-title">Total Emisi Approve</h5>
                         <p class="card-text display-6">
-                            {{ number_format($totalEmisiPerTahun, 2) }}
-                            <small class="fs-6">kg CO<sub>2</sub></small>
+                            {{ number_format($totalEmisiPerTahun / 1000, 3) }}
+                            <small class="fs-6">ton CO<sub>2</sub></small>
                         </p>
                     </div>
                 </div>
@@ -39,8 +39,8 @@
                         <i class="fas fa-cloud fa-3x mb-3"></i>
                         <h5 class="card-title">Total Emisi Pending</h5>
                         <p class="card-text display-6">
-                            {{ number_format($totalEmisiPerTahunPending, 2) }}
-                            <small class="fs-6">kg CO<sub>2</sub></small>
+                            {{ number_format($totalEmisiPerTahunPending / 1000, 3) }}
+                            <small class="fs-6">ton CO<sub>2</sub></small>
                         </p>
                     </div>
                 </div>
@@ -57,6 +57,51 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-dark text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-globe-americas fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Emisi Carbon (Approved)</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($totalEmisiApprovedTon, 3) }}
+                            <small class="fs-6">ton CO<sub>2</sub>e</small>
+                        </p>
+                        <p class="card-text">
+                            <small>
+                                Konversi dari {{ number_format($totalEmisiApprovedTon * 1000, 2) }} kg CO₂
+                            </small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+<<<<<<< HEAD
+            <div class="col-md-3 mb-3">
+                <div class="card bg-purple text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-leaf fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Terkompensasi</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($totalKompensasi, 3) }}
+                            <small class="fs-6">ton CO<sub>2</sub>e</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-teal text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-percentage fa-3x mb-3"></i>
+                        <h5 class="card-title">Persentase Kompensasi</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($persentaseKompensasi, 1) }}
+                            <small class="fs-6">%</small>
+                        </p>
+                        <small>dari total emisi approved</small>
+                    </div>
+                </div>
+            </div>
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
         </div>
         
 
@@ -65,7 +110,7 @@
             <div class="col-md-8 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Grafik Emisi Karbon Bulanan</h5>
+                        <h5 class="mb-0">Grafik Emisi Carbon Bulanan (Approved)</h5>
                     </div>
                     <div class="card-body">
                         @if(isset($chartData['labels']) && isset($chartData['data']))
@@ -187,7 +232,7 @@
             data: {
                 labels: {!! json_encode($chartData['labels']) !!},
                 datasets: [{
-                    label: 'Total Emisi Karbon (kg CO₂)',
+                    label: 'Total Emisi Carbon Approved (kg)',
                     data: {!! json_encode($chartData['data']) !!},
                     backgroundColor: 'rgba(46, 204, 113, 0.7)',
                     borderColor: 'rgba(39, 174, 96, 1)',
@@ -203,7 +248,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Total Emisi Karbon per Bulan'
+                        text: 'Total Emisi Carbon yang Disetujui per Bulan'
                     }
                 },
                 scales: {
@@ -251,6 +296,16 @@
 }
 .list-group-item:hover {
     background-color: #e9ecef;
+}
+.bg-purple {
+    background-color: #8e44ad !important;
+}
+.bg-teal {
+    background-color: #16a085 !important;
+}
+.card .card-text small {
+    font-size: 0.875rem;
+    opacity: 0.8;
 }
 </style>
 @endpush

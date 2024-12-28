@@ -7,6 +7,7 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
@@ -53,6 +54,28 @@
                 top: 5rem;
             }
         }
+
+        .notification-dropdown {
+            padding: 0;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .notification-item {
+            transition: background-color 0.2s;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .notification-item small {
+            font-size: 0.8rem;
+        }
     </style>
     @stack('styles')
 </head>
@@ -70,22 +93,50 @@
 
             <!-- Dropdown Profil -->
             <div class="d-flex align-items-center">
-                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
-                        </form>
-                    </li>
-                </ul>
+                <!-- Notification Dropdown -->
+                <div class="dropdown me-3">
+                    <button class="btn btn-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell"></i>
+                        @if($unreadNotifications > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $unreadNotifications }}
+                            </span>
+                        @endif
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                        @forelse($notifications as $notif)
+                            <li class="notification-item p-2 border-bottom">
+                                <small class="text-muted">{{ date('d/m/Y', strtotime($notif->tanggal)) }}</small>
+                                <div class="fw-bold">{{ $notif->kategori_notifikasi }}</div>
+                                <p class="mb-1">{{ $notif->deskripsi }}</p>
+                                <small class="text-muted">oleh admin [{{ $notif->kode_admin }}]</small>
+                            </li>
+                        @empty
+                            <li class="p-3 text-center">
+                                <span class="text-muted">Tidak ada notifikasi</span>
+                            </li>
+                        @endforelse
+                    </ul>
+                </div>
+
+                <!-- Existing Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> {{ Auth::user()->nama_user }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
-
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
