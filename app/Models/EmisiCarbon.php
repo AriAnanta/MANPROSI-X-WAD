@@ -39,4 +39,9 @@ class EmisiCarbon extends Model
     {
         return $this->belongsTo(Pengguna::class, 'kode_user', 'kode_user');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CarbonCreditController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CommentController;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -53,6 +54,10 @@ Route::middleware(['auth:admin'])->group(function () {
 // Routes untuk Manager yang sudah login
 Route::middleware(['auth:manager'])->group(function () {
     Route::get('/manager/dashboard', [DashboardController::class, 'managerDashboard'])->name('manager.dashboard');
+    
+    Route::post('/emisi/{id}/comment', [CommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{id}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
 // Route untuk logout
