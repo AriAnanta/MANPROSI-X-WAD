@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>{{ $title }}</title>
+    <title>Laporan Histori Notifikasi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,11 +33,6 @@
         th {
             background-color: #f5f5f5;
         }
-        .total {
-            text-align: right;
-            font-weight: bold;
-            margin-top: 20px;
-        }
         .footer {
             position: fixed;
             bottom: 0;
@@ -50,40 +45,36 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ $title }}</h1>
-        <p>Tanggal Cetak: {{ $date }}</p>
+        <h1>Laporan Histori Notifikasi</h1>
+        <p>Tanggal Cetak: {{ date('d/m/Y') }}</p>
     </div>
 
     <div class="meta-info">
-        <p>Admin: {{ $admin }}</p>
+        <p>Admin: {{ Auth::guard('admin')->user()->nama_admin }}</p>
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>No</th>
-                <th>Kode Pembelian</th>
+                <th>Tujuan</th>
+                <th>Kategori</th>
                 <th>Tanggal</th>
-                <th>Jumlah (kg CO₂)</th>
                 <th>Deskripsi</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($carbon_credits as $index => $credit)
+            @foreach($notifikasi as $index => $notif)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $credit->kode_pembelian_carbon_credit }}</td>
-                    <td>{{ date('d/m/Y', strtotime($credit->tanggal_pembelian_carbon_credit)) }}</td>
-                    <td style="text-align: right">{{ number_format($credit->jumlah_kompensasi, 2) }}</td>
-                    <td>{{ $credit->deskripsi }}</td>
+                    <td>{{ $notif->pengguna->nama_user ?? $notif->kode_user }}</td>
+                    <td>{{ $notif->kategori_notifikasi }}</td>
+                    <td>{{ date('d/m/Y', strtotime($notif->tanggal)) }}</td>
+                    <td>{{ $notif->deskripsi }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-
-    <div class="total">
-        <p>Total Pembelian Carbon Credit: {{ number_format($total_pembelian, 2) }} kg CO2</p>
-    </div>
 
     <div class="footer">
         <p>Dokumen ini dicetak secara otomatis oleh sistem Carbon Footprint</p>

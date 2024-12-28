@@ -1,13 +1,13 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmisiCarbonController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\CarbonCreditController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PembelianCarbonCreditController;
+use App\Http\Controllers\KompensasiEmisiController;
+use App\Http\Controllers\Manager\FaktorEmisiController;
+use App\Http\Controllers\NotifikasiController;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -32,7 +32,8 @@ Route::middleware('guest')->group(function () {
 
 // Routes untuk Pengguna yang sudah login
 Route::middleware(['auth:pengguna'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'userDashboard'])->name('user.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'userDashboard'])
+        ->name('user.dashboard');
     
     // Route untuk Emisi Karbon
     Route::resource('emisicarbon', EmisiCarbonController::class);
@@ -82,6 +83,8 @@ Route::middleware(['auth:admin'])->group(function () {
         // Route untuk download laporan emisi karbon
         Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])
             ->name('admin.emissions.list_report');
+        Route::get('/admin/emissions/selected-report', [EmisiCarbonController::class, 'downloadSelectedReport'])
+            ->name('admin.emissions.selected.report');
         Route::get('/emisicarbon/report', [EmisiCarbonController::class, 'downloadReport'])
             ->name('admin.emissions.report');
 
@@ -91,11 +94,78 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadSelectedReport'])
             ->name('carbon_credit.report');
     });
+
+    // Route untuk update status emisi karbon
+    Route::get('/admin/emissions/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])
+        ->name('admin.emissions.edit-status');
+    Route::put('/admin/emissions/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])
+        ->name('admin.emissions.update-status');
+
+    // Route untuk menampilkan daftar emisi di admin
+    Route::get('/admin/emissions', [EmisiCarbonController::class, 'adminIndex'])
+        ->name('admin.emissions.index');
+
+    // Route untuk menampilkan daftar notifikasi di admin
+    // Route notifikasi
+    Route::prefix('notifikasi')->group(function () {
+        Route::get('/', [NotifikasiController::class, 'index'])->name('notifikasi.index'); // Halaman histori notifikasi
+        Route::get('/create', [NotifikasiController::class, 'create'])->name('notifikasi.create'); // Halaman input notifikasi
+        Route::post('/', [NotifikasiController::class, 'store'])->name('notifikasi.store'); // Proses simpan notifikasi
+        Route::get('/{id}/edit', [NotifikasiController::class, 'edit'])->name('notifikasi.edit'); // Halaman edit notifikasi
+        Route::put('/{id}', [NotifikasiController::class, 'update'])->name('notifikasi.update'); // Proses update notifikasi
+        Route::delete('/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy'); // Proses hapus notifikasi
+    });
+
+    // Add this route with your other notifikasi routes
+    Route::get('/notifikasi/report', [NotifikasiController::class, 'report'])->name('notifikasi.report');
+
+    // Notification routes
+    Route::post('/notifications/{id}/mark-as-read', function ($id) {
+        auth()->guard('admin')->user()->notifications->where('id', $id)->first()->markAsRead();
+        return response()->json(['success' => true]);
+    });
+
+    Route::post('/notifications/mark-all-as-read', function () {
+        auth()->guard('admin')->user()->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
+    });
 });
 
 // Routes untuk Manager yang sudah login
 Route::middleware(['auth:manager'])->group(function () {
-    Route::get('/manager/dashboard', [DashboardController::class, 'managerDashboard'])->name('manager.dashboard');
+    Route::prefix('manager')->group(function () {
+        // Dashboard route
+        Route::get('/dashboard', [DashboardController::class, 'managerDashboard'])
+             ->name('manager.dashboard');
+        
+        // Faktor Emisi routes
+        Route::resource('faktor-emisi', FaktorEmisiController::class)
+            ->except(['create', 'edit', 'show'])
+            ->names([
+                'index' => 'manager.faktor-emisi.index',
+                'store' => 'manager.faktor-emisi.store',
+                'update' => 'manager.faktor-emisi.update',
+                'destroy' => 'manager.faktor-emisi.destroy',
+            ]);
+        
+        // Routes untuk Carbon Credit
+        Route::prefix('carbon-credit')->group(function () {
+            Route::get('/', [PembelianCarbonCreditController::class, 'managerIndex'])
+                 ->name('manager.carbon_credit.index');
+        });
+
+        // Routes untuk Kompensasi Emisi
+        Route::prefix('kompensasi')->group(function () {
+            Route::get('/', [KompensasiEmisiController::class, 'index'])
+                 ->name('manager.kompensasi.index');
+            Route::post('/', [KompensasiEmisiController::class, 'store'])
+                 ->name('manager.kompensasi.store');
+        });
+
+        // Route untuk request carbon credit
+        Route::post('/notifikasi/request-credit', [NotifikasiController::class, 'requestCredit'])
+            ->name('manager.notifikasi.request-credit');
+    });
 });
 
 // Route untuk logout

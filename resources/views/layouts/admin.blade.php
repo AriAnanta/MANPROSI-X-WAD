@@ -68,10 +68,10 @@
             <!-- Nama Brand -->
             <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Admin</a>
 
-            <!-- Dropdown Profil -->
-            <div class="d-flex align-items-center">
+            <!-- Existing Profile Dropdown -->
+            <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
+                    <i class="bi bi-person-circle"></i> {{ Auth::guard('admin')->user()->nama_admin }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                     <li><a class="dropdown-item" href="#">Profile</a></li>
@@ -83,6 +83,27 @@
                     </li>
                 </ul>
             </div>
+
+            <!-- In your navbar or wherever you want to show notifications -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    @if($unreadAdminNotifications > 0)
+                        <span class="badge bg-danger">{{ $unreadAdminNotifications }}</span>
+                    @endif
+                </a>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="max-height: 400px; overflow-y: auto;">
+                    <h6 class="dropdown-header">Notifikasi Terbaru</h6>
+                    @forelse($adminNotifications as $notification)
+                        <a class="dropdown-item" href="#">
+                            <small class="text-muted d-block">{{ \Carbon\Carbon::parse($notification['created_at'])->format('d M Y H:i') }}</small>
+                            {{ $notification['message'] }}
+                        </a>
+                    @empty
+                        <span class="dropdown-item">Tidak ada notifikasi terbaru</span>
+                    @endforelse
+                </div>
+            </li>
         </div>
     </nav>
 
@@ -118,7 +139,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="{{ route('notifikasi.create') }}">
                                 <i class="bi bi-bell me-2"></i> 
                                 Buat Notifikasi
                             </a>
@@ -151,5 +172,33 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+
+    @push('scripts')
+    <script>
+    function markAsRead(notificationId, url) {
+        fetch(`/notifications/${notificationId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.href = url;
+        });
+    }
+
+    function markAllAsRead() {
+        fetch('/notifications/mark-all-as-read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+    </script>
+    @endpush
 </body>
 </html> 
