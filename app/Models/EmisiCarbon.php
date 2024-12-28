@@ -39,6 +39,7 @@ class EmisiCarbon extends Model
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'kode_user', 'kode_user');
+<<<<<<< HEAD
     }
 
     public function admin()
@@ -49,5 +50,11 @@ class EmisiCarbon extends Model
     public function kompensasi()
     {
         return $this->hasMany(KompensasiEmisi::class, 'kode_emisi_karbon', 'kode_emisi_karbon');
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
     }
-}
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'kode_admin', 'kode_admin');
+    }}

@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Models\KompensasiEmisi;
+<<<<<<< HEAD
+=======
+use Illuminate\Support\Facades\Log;
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
 
 class PembelianCarbonCreditController extends Controller
 {
@@ -95,7 +99,11 @@ class PembelianCarbonCreditController extends Controller
             DB::commit();
 
             // Tambahkan log untuk debugging
+<<<<<<< HEAD
             \Log::info('Pembelian berhasil disimpan', [
+=======
+            Log::info('Pembelian berhasil disimpan', [
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
                 'pembelian_id' => $pembelian->id,
                 'kode_pembelian' => $kodePembelian,
                 'data' => $request->all()
@@ -108,7 +116,11 @@ class PembelianCarbonCreditController extends Controller
             DB::rollBack();
             
             // Tambahkan log error
+<<<<<<< HEAD
             \Log::error('Error saat menyimpan pembelian', [
+=======
+            Log::error('Error saat menyimpan pembelian', [
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
                 'error' => $e->getMessage(),
                 'data' => $request->all()
             ]);

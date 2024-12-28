@@ -74,6 +74,7 @@
                     </div>
                 </div>
             </div>
+<<<<<<< HEAD
             <div class="col-md-3 mb-3">
                 <div class="card bg-purple text-white h-100 shadow-sm">
                     <div class="card-body text-center">
@@ -99,6 +100,8 @@
                     </div>
                 </div>
             </div>
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
         </div>
         
 

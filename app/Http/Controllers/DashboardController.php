@@ -229,6 +229,7 @@ class DashboardController extends Controller
         
         // Siapkan data untuk grafik bulanan
         $chartData = $this->prepareManagerChartData();
+<<<<<<< HEAD
 
         // Hitung total emisi yang sudah dikompensasi
         $totalKompensasi = DB::selectOne("
@@ -241,6 +242,8 @@ class DashboardController extends Controller
         $persentaseKompensasi = $totalEmisiApprovedTon > 0 
             ? round(($totalKompensasi / $totalEmisiApprovedTon) * 100, 2)
             : 0;
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
 
         return view('pages.manager.dashboard', compact(
             'totalPengguna',
@@ -251,9 +254,13 @@ class DashboardController extends Controller
             'topPengguna',
             'totalEmisiPerTahunPending',
             'totalEmisiApprovedTon',
+<<<<<<< HEAD
             'chartData',
             'totalKompensasi',
             'persentaseKompensasi'
+=======
+            'chartData'
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
         ));
     }
 

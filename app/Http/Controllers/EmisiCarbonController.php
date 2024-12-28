@@ -11,13 +11,20 @@ use Carbon\Carbon;
 use App\Models\FaktorEmisi;
 use App\Models\EmisiCarbon;
 use Illuminate\Support\Facades\Log;
+<<<<<<< HEAD
 use App\Notifications\NewEmisiNotification;
 use App\Models\Admin;
+=======
+
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
 
 
 class EmisiCarbonController extends Controller
 {
+<<<<<<< HEAD
     // Tambahkan method untuk mendapatkan satuan berdasarkan kategori
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
     private function getSatuan($kategori)
     {
         $satuan = [
@@ -59,6 +66,7 @@ class EmisiCarbonController extends Controller
         ];
     }
 
+<<<<<<< HEAD
     private function getSatuanAktivitas($kategori)
     {
         $satuan = [
@@ -71,6 +79,8 @@ class EmisiCarbonController extends Controller
         
         return $satuan[$kategori] ?? '';
     }
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
 
     public function index()
     {
@@ -159,6 +169,7 @@ class EmisiCarbonController extends Controller
                 ]
             );
 
+<<<<<<< HEAD
             // // Send notification to all admins
             // $admins = Admin::all();
             // foreach ($admins as $admin) {
@@ -172,6 +183,8 @@ class EmisiCarbonController extends Controller
             //     ]));
             // }
 
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
             DB::commit();
             return redirect()->route('emisicarbon.index')
                            ->with('success', 'Data emisi karbon berhasil disimpan dan menunggu persetujuan');
@@ -389,7 +402,10 @@ class EmisiCarbonController extends Controller
     
         $placeholders = str_repeat('?,', count($selectedEmisi) - 1) . '?';
         
+<<<<<<< HEAD
         // Updated query to match database schema
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
         $emisi_carbons = DB::select("
             SELECT 
                 ec.*,
@@ -405,11 +421,19 @@ class EmisiCarbonController extends Controller
             $selectedEmisi
         );
     
+<<<<<<< HEAD
         // Calculate totals
         $total_pengajuan = count($emisi_carbons);
         $total_emisi = 0;
         
         // Process categories
+=======
+        
+        $total_pengajuan = count($emisi_carbons);
+        $total_emisi = 0;
+        
+        
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
         $emisiPerKategori = [];
         foreach ($emisi_carbons as $emisi) {
             $total_emisi += $emisi->kadar_emisi_karbon;
