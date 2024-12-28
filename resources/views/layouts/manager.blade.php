@@ -130,6 +130,7 @@
                                 Kompensasi Emisi
                             </a>
                         </li>
+<<<<<<< HEAD
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
                                href="{{ route('manager.carbon_credit.index') }}">
@@ -137,6 +138,8 @@
                                 Lihat Pembelian Carbon Credit
                             </a>
                         </li>
+=======
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
                     </ul>
                 </div>
             </nav>

@@ -7,7 +7,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Manager\FaktorEmisiController;
 use App\Http\Controllers\KompensasiEmisiController;
+<<<<<<< HEAD
 use App\Http\Controllers\PembelianCarbonCreditController;
+=======
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -66,6 +69,7 @@ Route::middleware(['auth:admin'])->group(function () {
     // Route untuk menampilkan daftar emisi di admin
     Route::get('/admin/emissions', [EmisiCarbonController::class, 'adminIndex'])
         ->name('admin.emissions.index');
+<<<<<<< HEAD
 
      // CRUD Pembelian Carbon Credit
     Route::get('/carbon_credit', [PembelianCarbonCreditController::class, 'index'])
@@ -102,6 +106,8 @@ Route::middleware(['auth:admin'])->group(function () {
      ->name('carbon_credit.list_report');
     Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadSelectedReport'])
      ->name('carbon_credit.report');
+=======
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
 });
 
 // Routes untuk Manager yang sudah login
@@ -120,6 +126,7 @@ Route::middleware(['auth:manager'])->group(function () {
                 'update' => 'manager.faktor-emisi.update',
                 'destroy' => 'manager.faktor-emisi.destroy',
             ]);
+<<<<<<< HEAD
         
         // Routes untuk Carbon Credit
         Route::prefix('carbon-credit')->group(function () {
@@ -127,14 +134,21 @@ Route::middleware(['auth:manager'])->group(function () {
                  ->name('manager.carbon_credit.index');
         });
             // Routes untuk Kompensasi Emisi
+=======
+        // Routes untuk Kompensasi Emisi
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
         Route::prefix('kompensasi')->group(function () {
             Route::get('/', [KompensasiEmisiController::class, 'index'])
                  ->name('manager.kompensasi.index');
             Route::post('/', [KompensasiEmisiController::class, 'store'])
                  ->name('manager.kompensasi.store');
+<<<<<<< HEAD
         
         });
         
+=======
+        });
+>>>>>>> a90b4ab2a0318143d13f3f6cabae4b53beb1ccce
        
     });
 });
