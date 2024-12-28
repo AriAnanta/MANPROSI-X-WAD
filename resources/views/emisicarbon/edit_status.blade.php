@@ -9,7 +9,7 @@
                     <h4 class="mb-0 text-center fw-semibold">Edit Status Emisi Karbon</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('emisicarbon.updateStatus', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
+                    <form action="{{ route('admin.emissions.update-status', $emisiCarbon->kode_emisi_karbon) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -29,8 +29,44 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="form-label">Sub Kategori</label>
+                            <input type="text" class="form-control" value="{{ ucfirst($emisiCarbon->sub_kategori) }}" disabled>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Nilai Aktivitas</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="{{ $emisiCarbon->nilai_aktivitas }}" disabled>
+                                <span class="input-group-text">
+                                    @switch($emisiCarbon->kategori_emisi_karbon)
+                                        @case('transportasi')
+                                            km
+                                            @break
+                                        @case('listrik')
+                                            kWh
+                                            @break
+                                        @case('sampah')
+                                            kg
+                                            @break
+                                        @case('air')
+                                            m³
+                                            @break
+                                        @case('gas')
+                                            kg
+                                            @break
+                                        @default
+                                            -
+                                    @endswitch
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
                             <label class="form-label">Kadar Emisi Karbon</label>
-                            <input type="number" class="form-control" value="{{ $emisiCarbon->kadar_emisi_karbon }}" disabled>
+                            <div class="input-group">
+                                <input type="number" class="form-control" value="{{ $emisiCarbon->kadar_emisi_karbon }}" disabled>
+                                <span class="input-group-text">kg CO₂</span>
+                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -38,13 +74,16 @@
                             <textarea class="form-control" rows="4" disabled>{{ $emisiCarbon->deskripsi }}</textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label for="status">Status Emisi Karbon</label>
-                            <select name="status" id="status" class="form-control">
+                        <div class="form-group mb-4">
+                            <label for="status" class="form-label">Status Emisi Karbon</label>
+                            <select name="status" id="status" class="form-select @error('status') is-invalid @enderror">
                                 <option value="approved" {{ $emisiCarbon->status == 'approved' ? 'selected' : '' }}>Approved</option>
                                 <option value="pending" {{ $emisiCarbon->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                 <option value="rejected" {{ $emisiCarbon->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
                             </select>
+                            @error('status')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-4">

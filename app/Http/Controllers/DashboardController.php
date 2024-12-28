@@ -9,46 +9,82 @@ class DashboardController extends Controller
 {
     public function userDashboard()
     {
-        $user = Auth::guard('pengguna')->user();
+        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
         
-        // Mengambil total emisi per kategori
-        $emisiPerKategori = DB::select("
-            SELECT kategori_emisi_karbon, SUM(kadar_emisi_karbon) as total_emisi
+        // Query untuk mendapatkan data per sub kategori
+        $emisiPerSubKategori = DB::select("
+            SELECT 
+                kategori_emisi_karbon,
+                sub_kategori,
+                COUNT(*) as jumlah_pengajuan,
+                SUM(CASE WHEN status = 'approved' THEN kadar_emisi_karbon ELSE 0 END) as total_emisi,
+                MAX(created_at) as last_update
             FROM emisi_carbons
             WHERE kode_user = ?
+            GROUP BY kategori_emisi_karbon, sub_kategori
+            ORDER BY kategori_emisi_karbon, sub_kategori",
+            [$kodeUser]
+        );
+
+        // Kelompokkan data berdasarkan kategori dengan cara yang benar
+        $groupedEmisi = [];
+        foreach ($emisiPerSubKategori as $emisi) {
+            $kategori = strtolower($emisi->kategori_emisi_karbon);
+            if (!isset($groupedEmisi[$kategori])) {
+                $groupedEmisi[$kategori] = [];
+            }
+            $groupedEmisi[$kategori][] = [
+                'sub_kategori' => $emisi->sub_kategori,
+                'jumlah_pengajuan' => $emisi->jumlah_pengajuan,
+                'total_emisi' => $emisi->total_emisi,
+                'last_update' => $emisi->last_update
+            ];
+        }
+
+        // Query untuk mendapatkan total emisi per kategori
+        $emisiPerKategori = DB::select("
+            SELECT 
+                kategori_emisi_karbon,
+                SUM(kadar_emisi_karbon) as total_emisi,
+                COUNT(*) as jumlah_pengajuan,
+                MAX(updated_at) as last_update
+            FROM emisi_carbons 
+            WHERE kode_user = ? 
+            AND status = 'approved'
             GROUP BY kategori_emisi_karbon",
-            [$user->kode_user]
+            [$kodeUser]
         );
 
-        // Mengambil emisi dengan status pending
+        // Hitung total emisi yang sudah disetujui
+        $totalEmisiApprovedTon = DB::selectOne("
+            SELECT COALESCE(SUM(kadar_emisi_karbon), 0) / 1000 as total
+            FROM emisi_carbons 
+            WHERE kode_user = ? 
+            AND status = 'approved'",
+            [$kodeUser]
+        )->total;
+
+        // Data untuk grafik
+        $chartData = $this->getChartData($kodeUser);
+
+        // Ambil data emisi yang masih pending
         $emisiPending = DB::select("
-            SELECT * FROM emisi_carbons
-            WHERE kode_user = ?
+            SELECT kategori_emisi_karbon, kadar_emisi_karbon, tanggal_emisi
+            FROM emisi_carbons 
+            WHERE kode_user = ? 
             AND status = 'pending'
-            ORDER BY created_at DESC
+            ORDER BY tanggal_emisi DESC 
             LIMIT 5",
-            [$user->kode_user]
+            [$kodeUser]
         );
 
-        // Ambil data emisi terbaru dengan relasi pengguna
-        $recentEmissions = DB::select("
-            SELECT e.*, p.nama_user
-            FROM emisi_carbons e
-            JOIN penggunas p ON e.kode_user = p.kode_user
-            WHERE e.kode_user IS NOT NULL
-            ORDER BY e.created_at DESC
-            LIMIT 5"
-        );
-
-        // Siapkan data untuk grafik bulanan
-        $chartData = $this->prepareChartData();
-
-        return view('pages.user.dashboard', compact(
-            'emisiPerKategori',
-            'emisiPending',
-            'recentEmissions',
-            'chartData'
-        ));
+        return view('pages.user.dashboard', [
+            'emisiPerKategori' => $emisiPerKategori,
+            'emisiPerSubKategori' => $groupedEmisi,
+            'totalEmisiApprovedTon' => $totalEmisiApprovedTon,
+            'chartData' => $chartData,
+            'emisiPending' => $emisiPending
+        ]);
     }
 
     public function adminDashboard()
@@ -56,14 +92,15 @@ class DashboardController extends Controller
         // Hitung total pengguna
         $totalUsers = DB::selectOne("SELECT COUNT(*) as total FROM penggunas")->total;
         
-        // Hitung total emisi
-        $totalEmissions = DB::selectOne("
-            SELECT COALESCE(SUM(kadar_emisi_karbon), 0) as total 
-            FROM emisi_carbons"
-        )->total;
+        // Hitung total emisi approved dalam ton CO2e
+        $totalEmissionsApprovedTon = DB::selectOne("
+            SELECT COALESCE(SUM(kadar_emisi_karbon) / 1000, 0) as total_ton
+            FROM emisi_carbons
+            WHERE status = 'approved'"
+        )->total_ton;
         
         // Hitung rata-rata emisi per pengguna
-        $averageEmissionPerUser = $totalUsers > 0 ? round($totalEmissions / $totalUsers, 2) : 0;
+        $averageEmissionPerUser = $totalUsers > 0 ? round($totalEmissionsApprovedTon / $totalUsers, 2) : 0;
         
         // Ambil data emisi terbaru dengan relasi pengguna
         $recentEmissions = DB::select("
@@ -80,48 +117,52 @@ class DashboardController extends Controller
         
         return view('pages.admin.dashboard', compact(
             'totalUsers',
-            'totalEmissions',
+            'totalEmissionsApprovedTon',
             'averageEmissionPerUser',
             'recentEmissions',
             'chartData'
         ));
     }
 
-    private function prepareChartData()
+    private function prepareChartData($kodeUser = null)
     {
-        if (Auth::guard('pengguna')->check()) {
-            $user = Auth::guard('pengguna')->user();
-            
-            $emissions = DB::select("
-                SELECT DATE_FORMAT(tanggal_emisi, '%Y-%m') as month,
-                       SUM(kadar_emisi_karbon) as total
-                FROM emisi_carbons
-                WHERE kode_user = ?
-                AND tanggal_emisi >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                GROUP BY DATE_FORMAT(tanggal_emisi, '%Y-%m')",
-                [$user->kode_user]
-            );
-        } else {
-            $emissions = DB::select("
-                SELECT DATE_FORMAT(tanggal_emisi, '%Y-%m') as month,
-                       SUM(kadar_emisi_karbon) as total
-                FROM emisi_carbons
-                WHERE tanggal_emisi >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                GROUP BY DATE_FORMAT(tanggal_emisi, '%Y-%m')"
-            );
-        }
-
-        // Process data for chart
-        $labels = [];
-        $data = [];
-        foreach ($emissions as $emission) {
-            $labels[] = date('F Y', strtotime($emission->month . '-01'));
-            $data[] = $emission->total;
-        }
+        $monthlyData = DB::select("
+            SELECT 
+                DATE_FORMAT(tanggal_emisi, '%Y-%m') as month,
+                SUM(kadar_emisi_karbon) as total_emisi
+            FROM emisi_carbons
+            WHERE status = 'approved'
+            " . ($kodeUser ? "AND kode_user = ?" : "") . "
+            GROUP BY DATE_FORMAT(tanggal_emisi, '%Y-%m')
+            ORDER BY month DESC
+            LIMIT 12",
+            $kodeUser ? [$kodeUser] : []
+        );
 
         return [
-            'labels' => $labels,
-            'data' => $data,
+            'labels' => array_column($monthlyData, 'month'),
+            'data' => array_column($monthlyData, 'total_emisi')
+        ];
+    }
+
+    private function getChartData($kodeUser)
+    {
+        $monthlyData = DB::select("
+            SELECT 
+                DATE_FORMAT(tanggal_emisi, '%Y-%m') as month,
+                SUM(kadar_emisi_karbon) as total_emisi
+            FROM emisi_carbons
+            WHERE kode_user = ?
+            AND status = 'approved'
+            GROUP BY DATE_FORMAT(tanggal_emisi, '%Y-%m')
+            ORDER BY month DESC
+            LIMIT 12",
+            [$kodeUser]
+        );
+
+        return [
+            'labels' => array_column($monthlyData, 'month'),
+            'data' => array_column($monthlyData, 'total_emisi')
         ];
     }
 
@@ -178,8 +219,16 @@ class DashboardController extends Controller
             LIMIT 10"
         );
         
+        // Hitung total emisi approved dalam ton CO2e
+        $totalEmisiApprovedTon = DB::selectOne("
+            SELECT COALESCE(SUM(kadar_emisi_karbon) / 1000, 0) as total_ton
+            FROM emisi_carbons
+            WHERE status = 'approved'
+            AND YEAR(tanggal_emisi) = YEAR(CURRENT_DATE())"
+        )->total_ton;
+        
         // Siapkan data untuk grafik bulanan
-        $chartData = $this->prepareChartData();
+        $chartData = $this->prepareManagerChartData();
 
         return view('pages.manager.dashboard', compact(
             'totalPengguna',
@@ -189,7 +238,28 @@ class DashboardController extends Controller
             'emisiPending',
             'topPengguna',
             'totalEmisiPerTahunPending',
+            'totalEmisiApprovedTon',
             'chartData'
         ));
+    }
+
+    // Tambahkan method baru untuk data grafik manager
+    private function prepareManagerChartData()
+    {
+        $monthlyData = DB::select("
+            SELECT 
+                DATE_FORMAT(tanggal_emisi, '%Y-%m') as month,
+                SUM(kadar_emisi_karbon) as total_emisi
+            FROM emisi_carbons
+            WHERE status = 'approved'
+            GROUP BY DATE_FORMAT(tanggal_emisi, '%Y-%m')
+            ORDER BY month DESC
+            LIMIT 12"
+        );
+
+        return [
+            'labels' => array_column($monthlyData, 'month'),
+            'data' => array_column($monthlyData, 'total_emisi')
+        ];
     }
 }

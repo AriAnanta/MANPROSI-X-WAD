@@ -31,15 +31,15 @@
 
                         <!-- Input Jumlah -->
                         <div class="mb-4">
-                            <label for="jumlah_pembelian_carbon_credit" class="form-label">Jumlah (kg CO₂)</label>
+                            <label for="jumlah_kompensasi" class="form-label">Jumlah (kg CO₂)</label>
                             <input type="number" 
                                    step="0.01" 
-                                   class="form-control @error('jumlah_pembelian_carbon_credit') is-invalid @enderror" 
-                                   id="jumlah_pembelian_carbon_credit" 
-                                   name="jumlah_pembelian_carbon_credit" 
-                                   value="{{ old('jumlah_pembelian_carbon_credit', $carbon_credit->jumlah_pembelian_carbon_credit) }}" 
+                                   class="form-control @error('jumlah_kompensasi') is-invalid @enderror" 
+                                   id="jumlah_kompensasi" 
+                                   name="jumlah_kompensasi" 
+                                   value="{{ old('jumlah_kompensasi', $carbon_credit->jumlah_kompensasi) }}" 
                                    required>
-                            @error('jumlah_pembelian_carbon_credit')
+                            @error('jumlah_kompensasi')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -61,7 +61,7 @@
                                    id="bukti_pembelian" 
                                    name="bukti_pembelian" 
                                    accept=".pdf,.jpg,.jpeg,.png">
-                            <small class="text-muted">Format: PDF, JPG, JPEG, PNG (Max: 2MB)</small>
+                            <small class="text-muted">Format: PDF, JPG, JPEG, PNG (Max: 10MB)</small>
                             @error('bukti_pembelian')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

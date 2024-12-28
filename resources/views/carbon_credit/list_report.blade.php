@@ -85,7 +85,7 @@
                                             </td>
                                             <td>{{ $credit->kode_pembelian_carbon_credit }}</td>
                                             <td>{{ date('d/m/Y', strtotime($credit->tanggal_pembelian_carbon_credit)) }}</td>
-                                            <td class="text-end">{{ number_format($credit->jumlah_pembelian_carbon_credit, 2) }}</td>
+                                            <td class="text-end">{{ number_format($credit->jumlah_kompensasi, 2) }}</td>
                                             <td>{{ $credit->deskripsi }}</td>
                                             <td class="text-center">
                                                 @if($credit->bukti_pembelian)

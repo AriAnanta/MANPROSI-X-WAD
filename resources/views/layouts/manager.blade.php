@@ -116,6 +116,27 @@
                                 Pengaturan
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/faktor-emisi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.faktor-emisi.index') }}">
+                                <i class="bi bi-calculator me-2"></i>
+                                Faktor Emisi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/kompensasi*') ? 'active' : '' }}" 
+                               href="{{ route('manager.kompensasi.index') }}">
+                                <i class="bi bi-arrow-left-right me-2"></i>
+                                Kompensasi Emisi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
+                               href="{{ route('manager.carbon_credit.index') }}">
+                                <i class="bi bi-currency-exchange me-2"></i>
+                                Lihat Pembelian Carbon Credit
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

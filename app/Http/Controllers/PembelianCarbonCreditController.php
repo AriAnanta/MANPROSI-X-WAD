@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;  
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use App\Models\KompensasiEmisi;
+use Illuminate\Support\Facades\Log;
 
 class PembelianCarbonCreditController extends Controller
 {
@@ -32,7 +34,11 @@ class PembelianCarbonCreditController extends Controller
      */
     public function create()
     {
-        return view('carbon_credit.create');
+        $kompensasiPending = KompensasiEmisi::where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    
+        return view('carbon_credit.create', compact('kompensasiPending'));
     }
 
     /**
@@ -40,41 +46,77 @@ class PembelianCarbonCreditController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validasi input
+        $validated = $request->validate([
+            'kode_kompensasi' => 'required|exists:kompensasi_emisi,kode_kompensasi',
             'tanggal_pembelian_carbon_credit' => 'required|date',
-            'bukti_pembelian' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'jumlah_pembelian_carbon_credit' => 'required|numeric|min:0',
+            'jumlah_kompensasi' => 'required|numeric|min:0.01',
+            'bukti_pembelian' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'deskripsi' => 'required|string'
         ]);
 
-        // Generate kode emisi karbon
-        $kodePembelian = 'PCC-' . Str::random(length: 6);
-        $kodeAdmin = Auth::guard(name: 'admin')->user()->kode_admin;
-        // Handle file upload
-        $buktiPembelianPath = null;
-        if ($request->hasFile(key: 'bukti_pembelian')) {
-            $file = $request->file(key: 'bukti_pembelian');
-            $fileName = $kodePembelian . '-' . time() . '.' . $file->getClientOriginalExtension();
-            $buktiPembelianPath = $file->storeAs(path: 'bukti-pembelian', name: $fileName, options: 'public');
+        try {
+            DB::beginTransaction();
+
+            // Generate kode pembelian
+            $lastKode = PembelianCarbonCredit::orderBy('id', 'desc')->first();
+            $kodeNumber = 1;
+            if ($lastKode) {
+                $kodeNumber = (int)substr($lastKode->kode_pembelian_carbon_credit, 4) + 1;
+            }
+            $kodePembelian = 'PCB-' . str_pad($kodeNumber, 6, '0', STR_PAD_LEFT);
+
+            // Upload bukti pembelian
+            $buktiPath = $request->file('bukti_pembelian')->store('bukti_pembelian', 'public');
+
+            // Simpan data pembelian
+            $pembelian = PembelianCarbonCredit::create([
+                'kode_pembelian_carbon_credit' => $kodePembelian,
+                'kode_kompensasi' => $request->kode_kompensasi,
+                'jumlah_kompensasi' => $request->jumlah_kompensasi,
+                'tanggal_pembelian_carbon_credit' => $request->tanggal_pembelian_carbon_credit,
+                'bukti_pembelian' => $buktiPath,
+                'deskripsi' => $request->deskripsi,
+                'kode_admin' => auth()->guard('admin')->user()->kode_admin
+            ]);
+
+            if (!$pembelian) {
+                throw new \Exception('Gagal menyimpan data pembelian');
+            }
+
+            // Update status kompensasi
+            $kompensasi = KompensasiEmisi::where('kode_kompensasi', $request->kode_kompensasi)->first();
+            if ($kompensasi) {
+                $kompensasi->status = 'completed';
+                if (!$kompensasi->save()) {
+                    throw new \Exception('Gagal mengupdate status kompensasi');
+                }
+            }
+
+            DB::commit();
+
+            // Tambahkan log untuk debugging
+            Log::info('Pembelian berhasil disimpan', [
+                'pembelian_id' => $pembelian->id,
+                'kode_pembelian' => $kodePembelian,
+                'data' => $request->all()
+            ]);
+
+            return redirect()->route('carbon_credit.index')
+                            ->with('success', 'Data pembelian carbon credit berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Tambahkan log error
+            Log::error('Error saat menyimpan pembelian', [
+                'error' => $e->getMessage(),
+                'data' => $request->all()
+            ]);
+
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                        ->withInput();
         }
-
-        DB::insert(query: "
-            INSERT INTO pembelian_carbon_credits (
-                kode_pembelian_carbon_credit, jumlah_pembelian_carbon_credit, tanggal_pembelian_carbon_credit,
-                bukti_pembelian, deskripsi, kode_admin, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())",
-            bindings: [
-                $kodePembelian,
-                $request->jumlah_pembelian_carbon_credit,
-                $request->tanggal_pembelian_carbon_credit,
-                $buktiPembelianPath,
-                $request->deskripsi,
-                $kodeAdmin
-            ]
-        );
-
-        return redirect()->route(route: 'carbon_credit.index')
-                        ->with(key: 'success', value: 'Data pembelian carbon credit berhasil ditambahkan.');
     }
 
     /**
@@ -112,9 +154,9 @@ class PembelianCarbonCreditController extends Controller
     {
         $request->validate([
             'tanggal_pembelian_carbon_credit' => 'required|date',
-            'jumlah_pembelian_carbon_credit' => 'required|numeric',
+            'jumlah_kompensasi' => 'required|numeric',
             'deskripsi' => 'required',
-            'bukti_pembelian' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
+            'bukti_pembelian' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
         ]);
 
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
@@ -148,7 +190,7 @@ class PembelianCarbonCreditController extends Controller
         $updated = DB::update("
             UPDATE pembelian_carbon_credits 
             SET tanggal_pembelian_carbon_credit = ?,
-                jumlah_pembelian_carbon_credit = ?,
+                jumlah_kompensasi = ?,
                 deskripsi = ?,
                 bukti_pembelian = ?,
                 updated_at = NOW()
@@ -156,7 +198,7 @@ class PembelianCarbonCreditController extends Controller
             AND kode_admin = ?",
             [
                 $request->tanggal_pembelian_carbon_credit,
-                $request->jumlah_pembelian_carbon_credit,
+                $request->jumlah_kompensasi,
                 $request->deskripsi,
                 $buktiPembelianPath,
                 $kode_pembelian_carbon_credit,
@@ -263,7 +305,7 @@ class PembelianCarbonCreditController extends Controller
 
         // Hitung total pembelian
         $totalPembelian = DB::selectOne("
-            SELECT COALESCE(SUM(jumlah_pembelian_carbon_credit), 0) as total
+            SELECT COALESCE(SUM(jumlah_kompensasi), 0) as total
             FROM pembelian_carbon_credits
             WHERE kode_admin = ?",
             [$kodeAdmin]
@@ -338,7 +380,7 @@ class PembelianCarbonCreditController extends Controller
 
         // Calculate total
         $totalPembelian = DB::selectOne("
-            SELECT COALESCE(SUM(jumlah_pembelian_carbon_credit), 0) as total
+            SELECT COALESCE(SUM(jumlah_kompensasi), 0) as total
             FROM pembelian_carbon_credits
             WHERE kode_pembelian_carbon_credit IN ($placeholders)",
             $selectedCredit
@@ -357,5 +399,56 @@ class PembelianCarbonCreditController extends Controller
         $pdf = PDF::loadView('carbon_credit.report', $reportData);
         $pdf->setPaper('A4', 'portrait');
         return $pdf->download('laporan-pembelian-carbon-credit-'.Carbon::now()->format('d-m-Y').'.pdf');
+    }
+
+    // Method untuk manager
+    public function managerIndex()
+    {
+        // Get all carbon credit purchases with their related kompensasi
+        $carbonCredits = DB::select("
+            SELECT 
+                pcc.*,
+                ke.kode_kompensasi,
+                ke.jumlah_kompensasi,
+                ke.status as kompensasi_status,
+                ec.kategori_emisi_karbon,
+                ec.sub_kategori
+            FROM pembelian_carbon_credits pcc
+            JOIN kompensasi_emisi ke ON pcc.kode_kompensasi = ke.kode_kompensasi
+            LEFT JOIN emisi_carbons ec ON ke.kode_emisi_karbon = ec.kode_emisi_karbon
+            ORDER BY pcc.tanggal_pembelian_carbon_credit DESC
+        ");
+
+        // Transform data for view
+        $carbonCredits = collect($carbonCredits)->map(function($credit) {
+            return [
+                'kode_pembelian' => $credit->kode_pembelian_carbon_credit,
+                'kode_kompensasi' => $credit->kode_kompensasi,
+                'kategori' => $credit->kategori_emisi_karbon,
+                'sub_kategori' => $credit->sub_kategori,
+                'jumlah_kompensasi' => number_format($credit->jumlah_kompensasi / 1000, 3), // Convert to tons
+                'tanggal_pembelian' => Carbon::parse($credit->tanggal_pembelian_carbon_credit)->format('d/m/Y'),
+                'status_kompensasi' => $credit->kompensasi_status,
+                'bukti_pembelian' => $credit->bukti_pembelian,
+                'deskripsi' => $credit->deskripsi
+            ];
+        });
+
+        // Get summary data
+        $summary = [
+            'total_pembelian' => collect($carbonCredits)->count(),
+            'total_kompensasi' => collect($carbonCredits)
+                ->sum(function($credit) {
+                    return floatval(str_replace(',', '', $credit['jumlah_kompensasi']));
+                }),
+            'completed_kompensasi' => collect($carbonCredits)
+                ->where('status_kompensasi', 'completed')
+                ->count(),
+            'pending_kompensasi' => collect($carbonCredits)
+                ->where('status_kompensasi', 'pending')
+                ->count()
+        ];
+
+        return view('carbon_credit.manager.index', compact('carbonCredits', 'summary'));
     }
 }

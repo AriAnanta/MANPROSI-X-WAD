@@ -53,74 +53,102 @@
             font-size: 10px;
             padding: 10px 0;
         }
+        .sub-category {
+            padding-left: 20px;
+            font-size: 11px;
+            background-color: #fafafa;
+        }
+        .stats-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        <!DOCTYPE html>
+<html>
+<head>
+    <title>{{ $title }}</title>
+    <style>
+        /* ... existing styles ... */
+        .detail-row { background-color: #f9f9f9; }
+        .status-approved { color: green; }
+        .status-pending { color: orange; }
+        .status-rejected { color: red; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>{{ $title }}</h1>
         <p>Tanggal Cetak: {{ $date }}</p>
-    </div>
-
-    <div class="meta-info">
         <p>Admin: {{ $admin }}</p>
     </div>
 
-    <!-- Ringkasan per Kategori -->
     <div class="summary">
-        <h2>Ringkasan per Kategori</h2>
+        <h2>Ringkasan Emisi Karbon</h2>
         <table>
             <thead>
                 <tr>
                     <th>Kategori</th>
                     <th>Jumlah Pengajuan</th>
-                    <th>Total Emisi (kg CO2)</th>
+                    <th>Total Emisi (kg CO₂)</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($emisi_per_kategori as $kategori)
+                @foreach($emisi_per_kategori as $kategori => $data)
                     <tr>
-                        <td>{{ ucfirst($kategori->kategori_emisi_karbon) }}</td>
-                        <td style="text-align: center">{{ $kategori->jumlah_pengajuan }}</td>
-                        <td style="text-align: right">{{ number_format($kategori->total_emisi, 2) }}</td>
+                        <td>{{ ucfirst($kategori) }}</td>
+                        <td>{{ $data['jumlah_pengajuan'] }}</td>
+                        <td>{{ number_format($data['total_emisi'], 2) }}</td>
+                    </tr>
+                @endforeach
+                <tr class="highlight">
+                    <td><strong>Total</strong></td>
+                    <td><strong>{{ $total_pengajuan }}</strong></td>
+                    <td><strong>{{ number_format($total_emisi, 2) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="details">
+        <h2>Detail Emisi</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kode Emisi</th>
+                    <th>Tanggal</th>
+                    <th>Pengguna</th>
+                    <th>Kategori</th>
+                    <th>Kadar Emisi (kg CO₂)</th>
+                    <th>Status</th>
+                    <th>Deskripsi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($emisi_carbons as $emisi)
+                    <tr class="detail-row">
+                        <td>{{ $emisi->kode_emisi_karbon }}</td>
+                        <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
+                        <td>{{ $emisi->nama_user }}</td>
+                        <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
+                        <td>{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
+                        <td class="status-{{ strtolower($emisi->status) }}">
+                            {{ ucfirst($emisi->status) }}
+                        </td>
+                        <td>{{ $emisi->deskripsi }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
 
-    <!-- Detail Emisi -->
-    <h2>Detail Emisi Karbon</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Pengguna</th>
-                <th>Tanggal</th>
-                <th>Kategori</th>
-                <th>Kadar Emisi (kg CO2)</th>
-                <th>Deskripsi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($emisi_carbons as $index => $emisi)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $emisi->nama_user }}</td>
-                    <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
-                    <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
-                    <td style="text-align: right">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
-                    <td>{{ $emisi->deskripsi }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="total">
-        <p>Total Emisi Karbon: {{ number_format($total_emisi, 2) }} kg CO2</p>
-    </div>
-
     <div class="footer">
-        <p>Dokumen ini dicetak secara otomatis oleh sistem Carbon Footprint</p>
+        <p>Dicetak oleh: {{ $admin }}</p>
+        <p>Tanggal: {{ $date }}</p>
     </div>
 </body>
-</html> 
+</html>
