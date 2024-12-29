@@ -151,75 +151,6 @@
                 </div>
             </div>
         </div>
-
-        <div>
-            @foreach($emisiCarbons as $emisi)
-            <div class="card mt-3">
-                <div class="card-header d-flex justify-content-between">
-                    <span>{{ $emisi->kode_emisi_karbon }} - {{ $emisi->kategori_emisi_karbon }}</span>
-                    <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ $emisi->id }}">
-                        Lihat Komentar
-                    </button>
-                </div>
-                <div id="comments-{{ $emisi->id }}" class="collapse">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <strong>Tanggal:</strong> {{ $emisi->tanggal_emisi }}<br>
-                            <strong>Kadar Emisi:</strong> {{ $emisi->kadar_emisi_karbon }}<br>
-                            <strong>Status:</strong> {{ $emisi->status }}
-                        </div>
-                        <div class="comments-list">
-                            <h6>Komentar:</h6>
-                            <ul class="list-group">
-                                @foreach($emisi->comments as $comment)
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <span>{{ $comment->comment }}</span>
-                                    <div>
-                                        <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
-                                        </form>
-                                        <button class="btn btn-sm btn-primary" onclick="editComment({{ $comment->id }}, '{{ $comment->comment }}')">Edit</button>
-                                    </div>
-                                </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <form action="{{ route('comments.store', $emisi->id) }}" method="POST" class="mt-3">
-                            @csrf
-                            <div class="mb-3">
-                                <textarea name="comment" class="form-control" rows="2" placeholder="Tambahkan komentar" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm">Tambah Komentar</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-
-        <div id="editCommentModal" class="modal fade" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <form id="editCommentForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit Komentar</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <textarea id="editCommentInput" name="comment" class="form-control" rows="3" required></textarea>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
     </main>
 </div>
 
@@ -268,14 +199,6 @@
                 }
             }
         });
-        <script>
-            function editComment(id, comment) {
-                const form = document.getElementById('editCommentForm');
-                form.action = `/comments/${id}`;
-                document.getElementById('editCommentInput').value = comment;
-                new bootstrap.Modal(document.getElementById('editCommentModal')).show();
-            }
-        </script>
     </script>
 @endpush
 

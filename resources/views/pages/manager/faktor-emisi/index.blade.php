@@ -197,4 +197,8 @@
     });
 </script>
 @endpush
+<<<<<<< HEAD
 @endsection
+=======
+@endsection 
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
