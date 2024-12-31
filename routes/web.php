@@ -6,8 +6,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\PembelianCarbonCreditController;
 use App\Http\Controllers\KompensasiEmisiController;
-use App\Http\Controllers\PembelianCarbonCreditController;
-use App\Http\Controllers\KompensasiEmisiController;
 use App\Http\Controllers\Manager\FaktorEmisiController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
