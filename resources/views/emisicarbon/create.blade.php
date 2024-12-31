@@ -59,7 +59,11 @@
                                        class="form-control @error('nilai_aktivitas') is-invalid @enderror" 
                                        id="nilai_aktivitas" name="nilai_aktivitas" 
                                        value="{{ old('nilai_aktivitas') }}" required>
+<<<<<<< HEAD
+                                <span class="input-group-text" id="satuan-addon"></span>
+=======
                                 <span class="input-group-text" id="satuan-addon">km</span>
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
                             </div>
                             @error('nilai_aktivitas')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -101,6 +105,64 @@
 const kategoriSelect = document.getElementById('kategori_emisi_karbon');
 const subKategoriSelect = document.getElementById('sub_kategori');
 const satuanAddon = document.getElementById('satuan-addon');
+<<<<<<< HEAD
+
+// Data faktor emisi dari database
+const faktorEmisiData = @json($kategoriEmisi);
+
+kategoriSelect.addEventListener('change', function() {
+    const kategori = this.value;
+    subKategoriSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+    
+    if (kategori && faktorEmisiData[kategori]) {
+        faktorEmisiData[kategori].forEach(faktor => {
+            const option = new Option(faktor.sub_kategori, faktor.sub_kategori);
+            subKategoriSelect.add(option);
+        });
+        // Update satuan berdasarkan kategori yang dipilih
+        if (faktorEmisiData[kategori].length > 0) {
+            satuanAddon.textContent = faktorEmisiData[kategori][0].satuan;
+        }
+    }
+});
+
+// Fungsi untuk menghitung emisi
+function hitungEmisi() {
+    const kategori = kategoriSelect.value;
+    const subKategori = subKategoriSelect.value;
+    const nilaiAktivitas = parseFloat(document.getElementById('nilai_aktivitas').value) || 0;
+    
+    if (kategori && subKategori && nilaiAktivitas > 0) {
+        const faktor = faktorEmisiData[kategori].find(f => f.sub_kategori === subKategori);
+        if (faktor) {
+            const hasil = nilaiAktivitas * faktor.nilai_faktor;
+            document.querySelector('.hasil-konversi').innerHTML = `
+                <div class="alert alert-info">
+                    <strong>Hasil Konversi:</strong><br>
+                    ${nilaiAktivitas.toFixed(2)} ${faktor.satuan} × 
+                    ${faktor.nilai_faktor} kg CO₂/satuan = 
+                    ${hasil.toFixed(2)} kg CO₂e
+                </div>
+            `;
+        }
+    }
+}
+
+// Event listeners untuk perhitungan otomatis
+kategoriSelect.addEventListener('change', hitungEmisi);
+subKategoriSelect.addEventListener('change', hitungEmisi);
+document.getElementById('nilai_aktivitas').addEventListener('input', hitungEmisi);
+</script>
+@endpush
+@push('styles')
+<style>
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #495057;
+    }
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
 
 // Data faktor emisi dari database
 const faktorEmisiData = @json($kategoriEmisi);

@@ -22,6 +22,7 @@
             padding: 48px 0 0;
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
             background-color: #198754;
+            background-color: #198754;
             color: white;
         }
 
@@ -33,6 +34,7 @@
 
         .sidebar .nav-link.active {
             background-color: #157347; 
+            background-color: #157347; 
             color: white;
         }
 
@@ -42,6 +44,7 @@
         }
 
         .navbar {
+            background-color: #f8f9fa;
             background-color: #f8f9fa;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
@@ -72,6 +75,7 @@
 
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> {{ Auth::guard('manager')->user()->nama_manager }}
                     <i class="bi bi-person-circle"></i> {{ Auth::guard('manager')->user()->nama_manager }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
@@ -107,6 +111,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+<<<<<<< HEAD
+                            <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
+                               href="{{ route('manager.carbon_credit.index') }}">
+                                <i class="bi bi-currency-exchange me-2"></i>
+                                Lihat Pembelian Carbon Credit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+=======
+>>>>>>> fa3fd670cc780c4d9894654f8e0b5205c88b78c3
                             <a class="nav-link {{ Request::is('manager/kompensasi*') ? 'active' : '' }}" 
                                href="{{ route('manager.kompensasi.index') }}">
                                 <i class="bi bi-arrow-left-right me-2"></i>

@@ -220,5 +220,33 @@
     }
     </script>
     @endpush
+
+    @push('scripts')
+    <script>
+    function markAsRead(notificationId, url) {
+        fetch(`/notifications/${notificationId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.href = url;
+        });
+    }
+
+    function markAllAsRead() {
+        fetch('/notifications/mark-all-as-read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+    </script>
+    @endpush
 </body>
 </html> 

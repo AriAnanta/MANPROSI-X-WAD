@@ -198,6 +198,16 @@
     font-size: 0.875rem;
     opacity: 0.8;
 }
+.bg-purple {
+    background-color: #8e44ad !important;
+}
+.bg-teal {
+    background-color: #16a085 !important;
+}
+.card .card-text small {
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
 </style>
 @endpush
 @endsection
