@@ -10,6 +10,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <!-- Default Styles -->
     <style>
         .sidebar {
             position: fixed;
@@ -19,7 +21,7 @@
             z-index: 100;
             padding: 48px 0 0;
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #198754; /* Warna hijau */
+            background-color: #198754;
             color: white;
         }
 
@@ -30,7 +32,7 @@
         }
 
         .sidebar .nav-link.active {
-            background-color: #157347; /* Warna hijau lebih gelap */
+            background-color: #157347; 
             color: white;
         }
 
@@ -40,7 +42,7 @@
         }
 
         .navbar {
-            background-color: #f8f9fa; /* Warna light */
+            background-color: #f8f9fa;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
 
@@ -54,27 +56,26 @@
             }
         }
     </style>
+    
+    <!-- Additional Styles -->
     @stack('styles')
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container-fluid">
-            <!-- Tombol Toggle -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <!-- Nama Brand -->
-            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Manager</a>
+            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint</a>
 
-            <!-- Dropdown Profil -->
-            <div class="d-flex align-items-center">
+            <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
+                    <i class="bi bi-person-circle"></i> {{ Auth::guard('manager')->user()->nama_manager }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -99,24 +100,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('manager/reports*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-file-text me-2"></i>
-                                Laporan
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('manager/emissions*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-cloud me-2"></i>
-                                Data Emisi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('manager/settings*') ? 'active' : '' }}" href="#">
-                                <i class="bi bi-gear me-2"></i>
-                                Pengaturan
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ Request::is('manager/faktor-emisi*') ? 'active' : '' }}" 
                                href="{{ route('manager.faktor-emisi.index') }}">
                                 <i class="bi bi-calculator me-2"></i>
@@ -128,6 +111,20 @@
                                href="{{ route('manager.kompensasi.index') }}">
                                 <i class="bi bi-arrow-left-right me-2"></i>
                                 Kompensasi Emisi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/carbon-credit*') ? 'active' : '' }}" 
+                               href="{{ route('manager.carbon_credit.index') }}">
+                                <i class="bi bi-currency-exchange me-2"></i>
+                                Lihat Pembelian Carbon Credit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('manager/comments*') ? 'active' : '' }}" 
+                               href="{{ route('manager.comments.index') }}">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Komentar Carbon Credit
                             </a>
                         </li>
                     </ul>

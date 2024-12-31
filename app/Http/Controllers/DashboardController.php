@@ -9,7 +9,16 @@ class DashboardController extends Controller
 {
     public function userDashboard()
     {
-        $kodeUser = Auth::guard('pengguna')->user()->kode_user;
+        if (!Auth::guard('pengguna')->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::guard('pengguna')->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $kodeUser = $user->kode_user;
         
         // Query untuk mendapatkan data per sub kategori
         $emisiPerSubKategori = DB::select("
@@ -230,6 +239,18 @@ class DashboardController extends Controller
         // Siapkan data untuk grafik bulanan
         $chartData = $this->prepareManagerChartData();
 
+        // Hitung total emisi yang sudah dikompensasi
+        $totalKompensasi = DB::selectOne("
+            SELECT COALESCE(SUM(jumlah_kompensasi) / 1000, 0) as total_ton
+            FROM kompensasi_emisi
+            WHERE status = 'completed'"
+        )->total_ton;
+
+        // Hitung persentase kompensasi
+        $persentaseKompensasi = $totalEmisiApprovedTon > 0 
+            ? round(($totalKompensasi / $totalEmisiApprovedTon) * 100, 2)
+            : 0;
+
         return view('pages.manager.dashboard', compact(
             'totalPengguna',
             'totalEmisiPerTahun',
@@ -239,7 +260,9 @@ class DashboardController extends Controller
             'topPengguna',
             'totalEmisiPerTahunPending',
             'totalEmisiApprovedTon',
-            'chartData'
+            'chartData',
+            'totalKompensasi',
+            'persentaseKompensasi'
         ));
     }
 

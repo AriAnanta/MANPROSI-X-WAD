@@ -47,8 +47,8 @@
         .navbar-brand {
             font-family: 'Zen Dots', cursive;
         }
-
-        @media (max-width: 767.98px) {
+  
+@media (max-width: 767.98px) {
             .sidebar {
                 top: 5rem;
             }
@@ -57,34 +57,68 @@
     @stack('styles')
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container-fluid">
-            <!-- Tombol Toggle -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Nama Brand -->
-            <a class="navbar-brand mb-0 h1" href="#">Carbon Footprint Admin</a>
+       <!-- Navbar -->
+<nav class="navbar navbar-expand-lg" style="font-family: 'Roboto', sans-serif; color: black;">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand" href="#" style="font-weight: bold; font-size: 1.5rem; color: black;">
+            <i class="fas fa-leaf me-2"></i> Carbon Footprint
+        </a>
 
-            <!-- Dropdown Profil -->
-            <div class="d-flex align-items-center">
-                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i> {{ Auth::user()->name }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+        <!-- Toggler Button for Mobile View -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto">
+                <!-- Notifications Dropdown -->
+                <li class="nav-item dropdown me-3">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: black;">
+                        <i class="fas fa-bell"></i>
+                        @if($unreadAdminNotifications > 0)
+                            <span class="badge bg-warning position-absolute top-0 start-100 translate-middle">{{ $unreadAdminNotifications }}</span>
+                        @endif
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="max-height: 300px; overflow-y: auto;">
+                        <h6 class="dropdown-header text-success">Notifikasi Terbaru</h6>
+                        @forelse($adminNotifications as $notification)
+                            <li>
+                                <a class="dropdown-item" href="#" style="color: black;">
+                                    <small class="text-muted d-block">{{ \Carbon\Carbon::parse($notification['created_at'])->format('d M Y H:i') }}</small>
+                                    {{ $notification['message'] }}
+                                </a>
+                            </li>
+                        @empty
+                            <li><span class="dropdown-item" style="color: black;">Tidak ada notifikasi terbaru</span></li>
+                        @endforelse
+                    </ul>
+                </li>
+
+                <!-- Profile Dropdown -->
+                <li class="nav-item dropdown">
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> {{ Auth::guard('admin')->user()->nama_admin }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="{{ route('profile.show') }}">Profile</a></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
+
+
 
     <div class="container-fluid">
         <div class="row">
@@ -105,13 +139,20 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('admin/users*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                                 <i class="bi bi-person-lines-fill me-2"></i>  
                                 Kelola Pengguna
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="#">
+                            <a class="nav-link {{ Request::is('admin/carbon_credit*') ? 'active' : '' }}" 
+                               href="{{ route('carbon_credit.index') }}">
+                                <i class="bi bi-cart me-2"></i>
+                                Pembelian Carbon Credit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/settings*') ? 'active' : '' }}" href="{{ route('notifikasi.create') }}">
                                 <i class="bi bi-bell me-2"></i> 
                                 Buat Notifikasi
                             </a>
@@ -121,6 +162,20 @@
                                href="{{ route('admin.emissions.list_report') }}">
                                 <i class="bi bi-printer me-2"></i> 
                                 Cetak Laporan Emisi Karbon
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/carbon_credit/list-report') ? 'active' : '' }}" 
+                               href="{{ route('carbon_credit.list_report') }}">
+                                <i class="bi bi-printer me-2"></i> 
+                                Cetak Laporan Pembelian Carbon Credit
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/comments*') ? 'active' : '' }}" 
+                               href="{{ route('admin.comments.index') }}">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Lihat Komentar
                             </a>
                         </li>
                     </ul>
@@ -137,5 +192,33 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+
+    @push('scripts')
+    <script>
+    function markAsRead(notificationId, url) {
+        fetch(`/notifications/${notificationId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.href = url;
+        });
+    }
+
+    function markAllAsRead() {
+        fetch('/notifications/mark-all-as-read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).then(() => {
+            window.location.reload();
+        });
+    }
+    </script>
+    @endpush
 </body>
 </html> 

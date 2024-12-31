@@ -44,4 +44,10 @@ class EmisiCarbon extends Model
     public function admin()
     {
         return $this->belongsTo(Admin::class, 'kode_admin', 'kode_admin');
-    }}
+    }
+
+    public function kompensasi()
+    {
+        return $this->hasMany(KompensasiEmisi::class, 'kode_emisi_karbon', 'kode_emisi_karbon');
+    }
+}

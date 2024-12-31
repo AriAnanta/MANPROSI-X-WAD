@@ -74,6 +74,31 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-purple text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-leaf fa-3x mb-3"></i>
+                        <h5 class="card-title">Total Terkompensasi</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($totalKompensasi, 3) }}
+                            <small class="fs-6">ton CO<sub>2</sub>e</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-teal text-white h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-percentage fa-3x mb-3"></i>
+                        <h5 class="card-title">Persentase Kompensasi</h5>
+                        <p class="card-text display-6">
+                            {{ number_format($persentaseKompensasi, 1) }}
+                            <small class="fs-6">%</small>
+                        </p>
+                        <small>dari total emisi approved</small>
+                    </div>
+                </div>
+            </div>
         </div>
         
 
@@ -90,35 +115,6 @@
                         @else
                             <p class="text-center text-muted">Data grafik tidak tersedia</p>
                         @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Daftar Emisi Pending Terbaru -->
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">Pengajuan Emisi Terbaru</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            @forelse($emisiPending as $emisi)
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1 text-success">{{ $emisi->nama_user }}</h6>
-                                    <small>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</small>
-                                </div>
-                                <p class="mb-1 text-muted">{{ ucfirst($emisi->kategori_emisi_karbon) }}</p>
-                                <p class="mb-1">{{ number_format($emisi->kadar_emisi_karbon, 2) }} kg CO<sub>2</sub></p>
-                                <div class="mt-2 text-center">
-                                    <button class="btn btn-sm btn-success me-2">Setujui</button>
-                                    <button class="btn btn-sm btn-danger">Tolak</button>
-                                </div>
-                            </div>
-                            @empty
-                            <p class="text-center">Tidak ada pengajuan emisi pending</p>
-                            @endforelse
-                     </div>
                     </div>
                 </div>
             </div>
@@ -191,6 +187,16 @@
 }
 .list-group-item:hover {
     background-color: #e9ecef;
+}
+.bg-purple {
+    background-color: #8e44ad !important;
+}
+.bg-teal {
+    background-color: #16a085 !important;
+}
+.card .card-text small {
+    font-size: 0.875rem;
+    opacity: 0.8;
 }
 </style>
 @endpush
