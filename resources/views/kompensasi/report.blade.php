@@ -157,7 +157,7 @@
         </table>
 
         <div class="total">
-            <p>Total Kompensasi: {{ number_format($total_kompensasi, 2) }} ton CO₂e</p>
+            <p>Total Kompensasi: {{ number_format($total_kompensasi, 2) }} ton CO2e</p>
         </div>
 
         <div class="signature-section">

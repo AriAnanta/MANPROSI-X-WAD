@@ -151,42 +151,7 @@
             <p><strong>Nomor Dokumen:</strong> DOC-{{ date('Ymd-His') }}</p>
         </div>
     <div class="content-wrapper">
-        <div class="header">
-            <h1>{{ $title }}</h1>
-            <p>Tanggal Cetak: {{ $date }}</p>
-        </div>
 
-        <div class="meta-info">
-            <p><strong>Admin yang Mencetak:</strong> {{ $admin }}</p>
-            <p><strong>Nomor Dokumen:</strong> DOC-{{ date('Ymd-His') }}</p>
-        </div>
-
-        <div class="summary">
-            <h2>Ringkasan Emisi Karbon</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Kategori</th>
-                        <th>Jumlah Pengajuan</th>
-                        <th>Total Emisi (kg CO2e)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($emisi_per_kategori as $kategori => $data)
-                        <tr>
-                            <td>{{ ucfirst($kategori) }}</td>
-                            <td>{{ $data['jumlah_pengajuan'] }}</td>
-                            <td>{{ number_format($data['total_emisi'], 2) }}</td>
-                        </tr>
-                    @endforeach
-                    <tr class="highlight">
-                        <td><strong>Total</strong></td>
-                        <td><strong>{{ $total_pengajuan }}</strong></td>
-                        <td><strong>{{ number_format($total_emisi, 2) }}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
         <div class="summary">
             <h2>Ringkasan Emisi Karbon</h2>
             <table>
@@ -255,7 +220,6 @@
     </div>
 
     <div class="footer">
-        <p>Dokumen ini dicetak secara otomatis oleh sistem Carbon Footprint</p>
         <p>Dokumen ini dicetak secara otomatis oleh sistem Carbon Footprint</p>
     </div>
 </body>

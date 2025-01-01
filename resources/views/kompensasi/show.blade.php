@@ -32,7 +32,7 @@
                                     <td>Status</td>
                                     <td>: <span class="badge bg-{{ 
                                         $kompensasi->status === 'pending' ? 'warning' : 
-                                        ($kompensasi->status === 'completed' ? 'success' : 'danger') 
+                                        ($kompensasi->status === 'approved' ? 'success' : 'danger') 
                                     }}">{{ ucfirst($kompensasi->status) }}</span></td>
                                 </tr>
                                 <tr>
