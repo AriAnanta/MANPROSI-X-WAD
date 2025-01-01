@@ -36,16 +36,16 @@
                             <table class="table table-bordered table-hover align-middle">
                                 <thead class="table-success">
                                     <tr>
-                                        <th width="40px">
+                                        <th style="width: 50px">
                                             <input type="checkbox" class="form-check-input" id="checkAll">
                                         </th>
-                                        <th>Pengguna</th>
-                                        <th>Tanggal</th>
-                                        <th>Kategori</th>
-                                        <th>Sub Kategori</th>
-                                        <th>Nilai Aktivitas</th>
-                                        <th>Kadar Emisi (kg CO₂)</th>
-                                        <th>Status</th>
+                                        <th style="width: 150px">Pengguna</th>
+                                        <th style="width: 100px">Tanggal</th>
+                                        <th style="width: 120px">Kategori</th>
+                                        <th style="width: 150px">Sub Kategori</th>
+                                        <th style="width: 120px">Nilai Aktivitas</th>
+                                        <th style="width: 150px">Kadar Emisi (kg CO₂)</th>
+                                        <th style="width: 100px">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -58,10 +58,20 @@
                                                        name="selected_emisi[]" 
                                                        value="{{ $emisi->kode_emisi_karbon }}">
                                             </td>
-                                            <td>{{ $emisi->nama_user }}</td>
-                                            <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
-                                            <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
-                                            <td>{{ ucfirst($emisi->sub_kategori) }}</td>
+                                            <td class="text-truncate position-relative" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top" 
+                                                title="{{ $emisi->nama_user }}">
+                                                {{ $emisi->nama_user }}
+                                            </td>
+                                            <td class="text-center text-nowrap">{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
+                                            <td class="text-nowrap">{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
+                                            <td class="text-truncate position-relative" 
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top" 
+                                                title="{{ ucfirst($emisi->sub_kategori) }}">
+                                                {{ ucfirst($emisi->sub_kategori) }}
+                                            </td>
                                             <td>
                                                 {{ number_format($emisi->nilai_aktivitas, 2) }}
                                                 @switch($emisi->kategori_emisi_karbon)

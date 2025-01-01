@@ -22,21 +22,27 @@
                         <table class="table table-bordered table-hover align-middle">
                             <thead class="table-success">
                                 <tr>
-                                    <th>Kategori</th>
-                                    <th>Tanggal</th>
-                                    <th>Kadar Emisi (kg CO2)</th>
-                                    <th>Deskripsi</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
+                                    <th style="width: 150px">Kategori</th>
+                                    <th style="width: 100px">Tanggal</th>
+                                    <th style="width: 150px">Kadar Emisi (kg CO₂)</th>
+                                    <th style="width: 300px">Deskripsi</th>
+                                    <th style="width: 100px">Status</th>
+                                    <th style="width: 180px">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($emisiCarbons as $emisi)
                                     <tr>
-                                        <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
-                                        <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
-                                        <td class="text-end">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
-                                        <td>{{ $emisi->deskripsi }}</td>
+                                        <td class="text-nowrap">{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
+                                        <td class="text-center text-nowrap">{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
+                                        <td class="text-end text-nowrap">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
+                                        <td class="text-truncate position-relative" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            data-bs-html="true"
+                                            title="{{ $emisi->deskripsi }}">
+                                            {{ $emisi->deskripsi }}
+                                        </td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $emisi->status === 'approved' ? 'success' : ($emisi->status === 'rejected' ? 'danger' : 'warning') }}">
                                                 {{ ucfirst($emisi->status) }}
@@ -88,5 +94,54 @@
     .bg-gradient-success {
         background: linear-gradient(90deg, #28a745, #218838);
     }
+    .table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .table td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tooltip-large .tooltip-inner {
+        max-width: 400px;
+        padding: 10px 15px;
+        background-color: rgba(0, 0, 0, 0.9);
+        font-size: 14px;
+        line-height: 1.4;
+        text-align: left;
+        word-break: break-word;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-bs-toggle="tooltip"] {
+        cursor: help;
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .table {
+            min-width: 1200px;
+        }
+    }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+// Inisialisasi tooltip
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl, {
+        template: '<div class="tooltip tooltip-large" role="tooltip">' +
+                 '<div class="tooltip-arrow"></div>' +
+                 '<div class="tooltip-inner"></div>' +
+                 '</div>'
+    });
+});
+</script>
 @endpush

@@ -98,8 +98,7 @@
 <body>
     <div class="register-container">
         <div class="register-header">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <h4>GreenLedger</h4>
+            <h2>Register Admin</h2>
         </div>
 
         <div class="card">

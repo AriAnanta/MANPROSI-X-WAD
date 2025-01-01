@@ -65,7 +65,7 @@
                                         <td class="text-center">
                                             {{ number_format($emisi->kadar_emisi_karbon, 2) }} kg CO₂e
                                         </td>
-                                        <td>{{ $emisi->deskripsi }}</td>
+                                        <td class="col-deskripsi">{{ $emisi->deskripsi }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $emisi->status === 'pending' ? 'warning' : 'success' }}">
                                                 {{ ucfirst($emisi->status) }}
@@ -92,7 +92,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">Tidak ada data emisi karbon</td>
+                                        <td colspan="9" class="text-center">Tidak ada data emisi karbon</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -139,6 +139,11 @@ function hapusData(kodeEmisi) {
     }
     .bg-gradient-success {
         background: linear-gradient(90deg, #28a745, #218838);
+    }
+    .col-deskripsi {
+        word-wrap: break-word; /* Membungkus kata panjang */
+        white-space: pre-wrap; /* Menangani spasi dan teks panjang */
+        max-width: 300px; /* Batasi lebar maksimal kolom */
     }
 </style>
 @endpush

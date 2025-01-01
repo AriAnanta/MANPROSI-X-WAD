@@ -31,8 +31,10 @@
 
         .register-header {
             text-align: center;
-            padding: 20px;
-            background-color: #198754;
+            padding: 25px;
+            background: linear-gradient(135deg, #198754 0%, #28a745 100%);
+            margin-bottom: 30px;
+            border-radius: 10px 10px 0 0;
             color: #fff;
         }
 
@@ -98,8 +100,7 @@
 <body>
     <div class="register-container">
         <div class="register-header">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <h4>GreenLedger</h4>
+            <h2>Register Pengguna</h2>
         </div>
 
         <div class="card">

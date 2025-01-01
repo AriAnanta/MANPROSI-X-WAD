@@ -11,11 +11,13 @@ use Carbon\Carbon;
 use App\Models\FaktorEmisi;
 use App\Models\EmisiCarbon;
 use Illuminate\Support\Facades\Log;
-
+use App\Notifications\NewEmisiNotification;
+use App\Models\Admin;
 
 
 class EmisiCarbonController extends Controller
 {
+    // Tambahkan method untuk mendapatkan satuan berdasarkan kategori
     private function getSatuan($kategori)
     {
         $satuan = [
@@ -57,6 +59,18 @@ class EmisiCarbonController extends Controller
         ];
     }
 
+    private function getSatuanAktivitas($kategori)
+    {
+        $satuan = [
+            'transportasi' => 'liter',
+            'listrik' => 'kWh',
+            'sampah' => 'kg',
+            'air' => 'm³',
+            'gas' => 'kg'
+        ];
+        
+        return $satuan[$kategori] ?? '';
+    }
 
     public function index()
     {
@@ -144,6 +158,19 @@ class EmisiCarbonController extends Controller
                     $request->tanggal_emisi
                 ]
             );
+
+            // // Send notification to all admins
+            // $admins = Admin::all();
+            // foreach ($admins as $admin) {
+            //     $admin->notify(new NewEmisiNotification([
+            //         'type' => 'emisi',
+            //         'kode_emisi' => $emisiData->kode_emisi_karbon,
+            //         'kategori' => $emisiData->kategori_emisi_karbon,
+            //         'jumlah_ton' => number_format($emisiData->kadar_emisi_karbon / 1000, 3),
+            //         'message' => 'Emisi karbon baru memerlukan persetujuan',
+            //         'url' => route('admin.emissions.edit_status', $emisiData->kode_emisi_karbon)
+            //     ]));
+            // }
 
             DB::commit();
             return redirect()->route('emisicarbon.index')
@@ -362,6 +389,7 @@ class EmisiCarbonController extends Controller
     
         $placeholders = str_repeat('?,', count($selectedEmisi) - 1) . '?';
         
+        // Updated query to match database schema
         $emisi_carbons = DB::select("
             SELECT 
                 ec.*,
@@ -377,11 +405,11 @@ class EmisiCarbonController extends Controller
             $selectedEmisi
         );
     
-        
+        // Calculate totals
         $total_pengajuan = count($emisi_carbons);
         $total_emisi = 0;
         
-        
+        // Process categories
         $emisiPerKategori = [];
         foreach ($emisi_carbons as $emisi) {
             $total_emisi += $emisi->kadar_emisi_karbon;

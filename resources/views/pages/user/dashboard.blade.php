@@ -22,7 +22,7 @@
                         Konversi dari {{ number_format($totalEmisiApprovedTon * 1000, 2) }} kg CO₂e
                     </small>
                 </p>
-            </div>
+                </div>
         </div>
          <!-- Kategori Emisi -->
          <div class="row mb-4">
@@ -80,10 +80,12 @@
                 <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Grafik Emisi Carbon Bulanan (Approved)</h5>
             </div>
             <div class="card-body">
-                @if(isset($chartData['labels']) && isset($chartData['data']))
-                    <canvas id="emissionChart"></canvas>
+                @if(!empty($chartData['labels']) && !empty($chartData['data']) && count($chartData['labels']) > 0)
+                <canvas id="emissionChart" height="400" width="1000"></canvas>
                 @else
-                    <p class="text-center text-muted">Data grafik tidak tersedia</p>
+                    <div class="alert alert-info">
+                        Belum ada data emisi yang disetujui untuk ditampilkan dalam grafik.
+                    </div>
                 @endif
             </div>
         </div>
@@ -92,51 +94,59 @@
 
 @push('scripts')
 <script>
-    const ctx = document.getElementById('emissionChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($chartData['labels']) !!},
-            datasets: [{
-                label: 'Total Emisi Carbon Approved (kg)',
-                data: {!! json_encode($chartData['data']) !!},
-                backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                borderColor: 'rgba(39, 174, 96, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Total Emisi Carbon yang Disetujui per Bulan'
-                }
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('emissionChart');
+    
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($chartData['labels'] ?? []) !!},
+                datasets: [{
+                    label: 'Total Emisi Carbon Approved (kg)',
+                    data: {!! json_encode($chartData['data'] ?? []) !!},
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(39, 174, 96, 1)',
+                    borderWidth: 1
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
                     title: {
                         display: true,
-                        text: 'Total Emisi (kg CO₂)'
+                        text: 'Total Emisi Carbon yang Disetujui per Bulan'
                     }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Bulan'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total Emisi (kg CO₂)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Bulan'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+});
 </script>
 @endpush
 
 @push('styles')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 .card {
     border-radius: 15px;

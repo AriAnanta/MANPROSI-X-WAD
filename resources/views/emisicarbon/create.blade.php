@@ -149,4 +149,44 @@ subKategoriSelect.addEventListener('change', hitungEmisi);
 document.getElementById('nilai_aktivitas').addEventListener('input', hitungEmisi);
 </script>
 @endpush
+@push('styles')
+<style>
+    .form-label {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .btn-success {
+        background: linear-gradient(90deg, #28a745, #218838);
+        border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-success:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .bg-gradient-success {
+        background: linear-gradient(90deg, #28a745, #218838);
+    }
+</style>
+@endpush
 @endsection

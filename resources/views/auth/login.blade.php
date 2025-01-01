@@ -18,6 +18,14 @@
             margin: 0;
             color: #fff;
         }
+        
+        .login-header img {
+        max-width: 200px; /* Perbesar ukuran maksimal */
+        height: auto; 
+        width: 100%; /* Pastikan gambar tetap responsif */
+        transition: transform 0.3s ease;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
 
         .login-container {
             width: 100%;
@@ -31,11 +39,13 @@
 
         .login-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
         }
 
-        .login-header img {
-            max-width: 120px;
+
+        .login-header img:hover {
+            transform: scale(1.05);
         }
 
         .card-header {
@@ -106,8 +116,7 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo">
-            <h4>GreenLedger</h4>
+            <img src="{{ asset('img/logo.png') }}" alt="Logo">  
         </div>
 
         <div class="card">

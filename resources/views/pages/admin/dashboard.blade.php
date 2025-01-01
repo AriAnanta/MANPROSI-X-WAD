@@ -10,8 +10,8 @@
         </div>
 
         <!-- Kartu Informasi Ringkasan -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
+        <div class="row g-2 mb-4">
+            <div class="col-12 col-sm-6 col-md-3 mb-3">
                 <div class="card bg-light-green text-white h-100 shadow-sm">
                     <div class="card-body text-center">
                         <i class="fas fa-users fa-3x mb-3"></i>
@@ -23,7 +23,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-12 col-sm-6 col-md-3 mb-3">
                 <div class="card bg-dark text-white h-100 shadow-sm">
                     <div class="card-body text-center">
                         <i class="fas fa-globe-americas fa-3x mb-3"></i>
@@ -43,17 +43,20 @@
             
         </div>
 
-        <!-- Grafik -->
-        <div class="card shadow-sm mb-4">
+       <!-- Grafik -->
+       <div class="card shadow-sm mb-4">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Grafik Emisi Carbon Bulanan (Approved)</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="emissionChart" height="400" width="800"></canvas>
-            </div>
         </div>
-
-        
+        <div class="card-body">
+            @if(!empty($chartData['labels']) && !empty($chartData['data']) && count($chartData['labels']) > 0)
+            <canvas id="emissionChart" height="400" width="1000"></canvas>
+            @else
+                <div class="alert alert-info">
+                    Belum ada data emisi yang disetujui untuk ditampilkan dalam grafik.
+                </div>
+            @endif
+        </div>    
     </main>
 </div>
 
@@ -102,6 +105,64 @@
             }
         }
     });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar toggle functionality
+    const toggleSidebar = document.querySelector('.navbar-toggler');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.createElement('div');
+    
+    overlay.classList.add('sidebar-overlay');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1035;
+        display: none;
+    `;
+    
+    document.body.appendChild(overlay);
+
+    toggleSidebar.addEventListener('click', function() {
+        sidebar.classList.toggle('show');
+        if (sidebar.classList.contains('show')) {
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        } else {
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    overlay.addEventListener('click', function() {
+        sidebar.classList.remove('show');
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!sidebar.contains(e.target) && !toggleSidebar.contains(e.target)) {
+            sidebar.classList.remove('show');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.remove('show');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+});
 </script>
 @endpush
 
