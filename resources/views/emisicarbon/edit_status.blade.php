@@ -37,27 +37,7 @@
                             <label class="form-label">Nilai Aktivitas</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" value="{{ $emisiCarbon->nilai_aktivitas }}" disabled>
-                                <span class="input-group-text">
-                                    @switch($emisiCarbon->kategori_emisi_karbon)
-                                        @case('transportasi')
-                                            km
-                                            @break
-                                        @case('listrik')
-                                            kWh
-                                            @break
-                                        @case('sampah')
-                                            kg
-                                            @break
-                                        @case('air')
-                                            m³
-                                            @break
-                                        @case('gas')
-                                            kg
-                                            @break
-                                        @default
-                                            -
-                                    @endswitch
-                                </span>
+                                <span class="input-group-text">{{ $emisiCarbon->satuan ?? '-' }}</span>
                             </div>
                         </div>
 

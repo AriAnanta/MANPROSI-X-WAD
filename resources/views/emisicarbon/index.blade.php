@@ -41,33 +41,13 @@
                                         <td>{{ date('d/m/Y', strtotime($emisi->tanggal_emisi)) }}</td>
                                         <td>{{ ucfirst($emisi->kategori_emisi_karbon) }}</td>
                                         <td>{{ ucfirst($emisi->sub_kategori) }}</td>
-                                        <td>{{ number_format($emisi->nilai_aktivitas, 2) }}
-                                            @switch($emisi->kategori_emisi_karbon)
-                                                @case('transportasi')
-                                                    km
-                                                    @break
-                                                @case('listrik')
-                                                    kWh
-                                                    @break
-                                                @case('sampah')
-                                                    kg
-                                                    @break
-                                                @case('air')
-                                                    m³
-                                                    @break
-                                                @case('gas')
-                                                    kg
-                                                    @break
-                                                @default
-                                                    -
-                                            @endswitch
-                                        </td>
+                                        <td class="col-nilai-aktivitas">{{ number_format($emisi->nilai_aktivitas, 2) }} {{ $emisi->satuan }}</td>
                                         <td class="text-center">
                                             {{ number_format($emisi->kadar_emisi_karbon, 2) }} kg CO₂e
                                         </td>
                                         <td class="col-deskripsi">{{ $emisi->deskripsi }}</td>
                                         <td class="text-center">
-                                            <span class="badge bg-{{ $emisi->status === 'pending' ? 'warning' : 'success' }}">
+                                            <span class="badge bg-{{ $emisi->status === 'pending' ? 'warning' : ($emisi->status === 'rejected' ? 'danger' : 'success') }}">
                                                 {{ ucfirst($emisi->status) }}
                                             </span>
                                         </td>
@@ -141,9 +121,16 @@ function hapusData(kodeEmisi) {
         background: linear-gradient(90deg, #28a745, #218838);
     }
     .col-deskripsi {
-        word-wrap: break-word; /* Membungkus kata panjang */
-        white-space: pre-wrap; /* Menangani spasi dan teks panjang */
-        max-width: 300px; /* Batasi lebar maksimal kolom */
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        max-width: 300px;
+    }
+    .col-nilai-aktivitas {
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        max-width: 150px;
+        text-align: right;
+        padding-right: 10px;
     }
 </style>
 @endpush

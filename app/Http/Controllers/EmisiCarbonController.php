@@ -18,27 +18,26 @@ use App\Models\Admin;
 class EmisiCarbonController extends Controller
 {
     // Tambahkan method untuk mendapatkan satuan berdasarkan kategori
-    private function getSatuan($kategori)
+    private function getSatuan($kategori, $subKategori)
     {
-        $satuan = [
-            'Transportasi' => 'liter',
-            'Listrik' => 'kWh',
-            'Sampah' => 'kg',
-            'Air' => 'm³'
-        ];
+        $result = DB::selectOne("
+            SELECT satuan 
+            FROM faktor_emisis 
+            WHERE kategori_emisi_karbon = ? 
+            AND sub_kategori = ?
+            LIMIT 1", 
+            [$kategori, $subKategori]
+        );
         
-        return $satuan[$kategori] ?? '';
+        return $result ? $result->satuan : '';
     }
 
     private function konversiEmisi($kategori, $subKategori, $nilaiAktivitas)
     {
-        // Ganti query Eloquent dengan SQL murni
-        $faktorEmisi = DB::selectOne("
-            SELECT * FROM faktor_emisis 
-            WHERE kategori_emisi_karbon = ? 
-            AND sub_kategori = ?", 
-            [$kategori, $subKategori]
-        );
+        // Ambil faktor emisi dari database
+        $faktorEmisi = FaktorEmisi::where('kategori_emisi_karbon', $kategori)
+            ->where('sub_kategori', $subKategori)
+            ->first();
 
         if ($faktorEmisi) {
             $hasil = $nilaiAktivitas * $faktorEmisi->nilai_faktor;
@@ -61,27 +60,17 @@ class EmisiCarbonController extends Controller
             'satuan_emisi' => 'kg CO₂e'
         ];
     }
-
-    private function getSatuanAktivitas($kategori)
-    {
-        $satuan = [
-            'transportasi' => 'liter',
-            'listrik' => 'kWh',
-            'sampah' => 'kg',
-            'air' => 'm³',
-            'gas' => 'kg'
-        ];
-        
-        return $satuan[$kategori] ?? '';
-    }
-
     public function index()
     {
         $kodeUser = Auth::guard('pengguna')->user()->kode_user;
         $emisiCarbons = DB::select("
-            SELECT * FROM emisi_carbons 
-            WHERE kode_user = ? 
-            ORDER BY created_at DESC
+            SELECT ec.*, fe.satuan
+            FROM emisi_carbons ec
+            LEFT JOIN faktor_emisis fe 
+                ON ec.kategori_emisi_karbon = fe.kategori_emisi_karbon 
+                AND ec.sub_kategori = fe.sub_kategori
+            WHERE ec.kode_user = ? 
+            ORDER BY ec.created_at DESC
             LIMIT 10", 
             [$kodeUser]
         );
@@ -93,8 +82,6 @@ class EmisiCarbonController extends Controller
                 $emisi->sub_kategori,
                 $emisi->nilai_aktivitas
             );
-           
-            $emisi->satuan = $this->getSatuan($emisi->kategori_emisi_karbon);
         }
 
         return view('emisicarbon.index', compact('emisiCarbons'));
@@ -102,11 +89,11 @@ class EmisiCarbonController extends Controller
 
     public function create()
     {
-        // Ganti query Eloquent dengan SQL murni
-        $faktorEmisis = DB::select("SELECT * FROM faktor_emisis");
+        // Ambil data kategori dan sub kategori dari tabel faktor_emisis
+        $faktorEmisis = FaktorEmisi::all();
         
         // Kelompokkan berdasarkan kategori
-        $kategoriEmisi = collect($faktorEmisis)->groupBy('kategori_emisi_karbon');
+        $kategoriEmisi = $faktorEmisis->groupBy('kategori_emisi_karbon');
         
         return view('emisicarbon.create', compact('kategoriEmisi'));
     }
@@ -124,13 +111,10 @@ class EmisiCarbonController extends Controller
             $kodeEmisi = 'EMC-' . Str::random(6);
             $kodeUser = Auth::guard('pengguna')->user()->kode_user;
 
-        // Ganti query Eloquent dengan SQL murni untuk faktor emisi
-        $faktorEmisi = DB::selectOne("
-            SELECT * FROM faktor_emisis 
-            WHERE kategori_emisi_karbon = ? 
-            AND sub_kategori = ?",
-            [$request->kategori_emisi_karbon, $request->sub_kategori]
-        );
+        // Ambil faktor emisi dari database
+        $faktorEmisi = FaktorEmisi::where('kategori_emisi_karbon', $request->kategori_emisi_karbon)
+            ->where('sub_kategori', $request->sub_kategori)
+            ->first();
 
         Log::info('Faktor Emisi:', [
             'kategori' => $request->kategori_emisi_karbon,
@@ -192,20 +176,12 @@ class EmisiCarbonController extends Controller
     {
         $kodeUser = Auth::guard('pengguna')->user()->kode_user;
         
-        // Ganti query Eloquent dengan SQL murni
-        $emisiCarbon = DB::selectOne("
-            SELECT * FROM emisi_carbons 
-            WHERE kode_emisi_karbon = ? 
-            AND kode_user = ?", 
-            [$kode_emisi_karbon, $kodeUser]
-        );
+        $emisiCarbon = EmisiCarbon::where('kode_emisi_karbon', $kode_emisi_karbon)
+            ->where('kode_user', $kodeUser)
+            ->firstOrFail();
         
-        if (!$emisiCarbon) {
-            abort(404);
-        }
-        
-        $faktorEmisis = DB::select("SELECT * FROM faktor_emisis");
-        $kategoriEmisi = collect($faktorEmisis)->groupBy('kategori_emisi_karbon');
+        $faktorEmisis = FaktorEmisi::all();
+        $kategoriEmisi = $faktorEmisis->groupBy('kategori_emisi_karbon');
         
         return view('emisicarbon.edit', compact('emisiCarbon', 'kategoriEmisi'));
     }
@@ -220,13 +196,10 @@ class EmisiCarbonController extends Controller
             'deskripsi' => 'required|string'
         ]);
 
-        // Ganti query Eloquent dengan SQL murni untuk faktor emisi
-        $faktorEmisi = DB::selectOne("
-            SELECT * FROM faktor_emisis 
-            WHERE kategori_emisi_karbon = ? 
-            AND sub_kategori = ?",
-            [$request->kategori_emisi_karbon, $request->sub_kategori]
-        );
+        // Ambil faktor emisi dari database
+        $faktorEmisi = FaktorEmisi::where('kategori_emisi_karbon', $request->kategori_emisi_karbon)
+            ->where('sub_kategori', $request->sub_kategori)
+            ->first();
 
         if (!$faktorEmisi) {
             return redirect()->back()->with('error', 'Faktor emisi tidak ditemukan');
@@ -284,8 +257,12 @@ class EmisiCarbonController extends Controller
     public function editStatus($kode_emisi_karbon)
     {
         $emisiCarbon = DB::selectOne("
-            SELECT * FROM emisi_carbons 
-            WHERE kode_emisi_karbon = ?", 
+            SELECT ec.*, fe.satuan
+            FROM emisi_carbons ec
+            LEFT JOIN faktor_emisis fe 
+                ON ec.kategori_emisi_karbon = fe.kategori_emisi_karbon 
+                AND ec.sub_kategori = fe.sub_kategori
+            WHERE ec.kode_emisi_karbon = ?", 
             [$kode_emisi_karbon]
         );
 
@@ -320,16 +297,15 @@ class EmisiCarbonController extends Controller
     public function adminIndex()
     {
         $emisiCarbons = DB::select("
-            SELECT ec.*, p.nama_user 
+            SELECT ec.*, p.nama_user, fe.satuan
             FROM emisi_carbons ec
             LEFT JOIN penggunas p ON ec.kode_user = p.kode_user
+            LEFT JOIN faktor_emisis fe 
+                ON ec.kategori_emisi_karbon = fe.kategori_emisi_karbon 
+                AND ec.sub_kategori = fe.sub_kategori
             ORDER BY ec.created_at DESC 
             LIMIT 10"
         );
-        
-        foreach ($emisiCarbons as $emisi) {
-            $emisi->satuan = $this->getSatuan($emisi->kategori_emisi_karbon);
-        }
         
         return view('emisicarbon.admin.index', compact('emisiCarbons'));
     }
@@ -387,9 +363,12 @@ class EmisiCarbonController extends Controller
     public function listReport()
     {
         $emisiCarbons = DB::select("
-            SELECT e.*, p.nama_user 
+            SELECT e.*, p.nama_user, fe.satuan
             FROM emisi_carbons e
             LEFT JOIN penggunas p ON e.kode_user = p.kode_user
+            LEFT JOIN faktor_emisis fe 
+                ON e.kategori_emisi_karbon = fe.kategori_emisi_karbon 
+                AND e.sub_kategori = fe.sub_kategori
             ORDER BY e.tanggal_emisi DESC"
         );
 

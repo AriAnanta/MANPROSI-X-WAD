@@ -73,26 +73,7 @@
                                                 {{ ucfirst($emisi->sub_kategori) }}
                                             </td>
                                             <td>
-                                                {{ number_format($emisi->nilai_aktivitas, 2) }}
-                                                @switch($emisi->kategori_emisi_karbon)
-                                                    @case('transportasi')
-                                                        km
-                                                        @break
-                                                    @case('listrik')
-                                                        kWh
-                                                        @break
-                                                    @case('sampah')
-                                                        kg
-                                                        @break
-                                                    @case('air')
-                                                        m³
-                                                        @break
-                                                    @case('gas')
-                                                        kg
-                                                        @break
-                                                    @default
-                                                        -
-                                                @endswitch
+                                                {{ number_format($emisi->nilai_aktivitas, 2) }} {{ $emisi->satuan ?? '-' }}
                                             </td>
                                             <td class="text-end">{{ number_format($emisi->kadar_emisi_karbon, 2) }}</td>
                                             <td class="text-center">
@@ -141,19 +122,19 @@ document.addEventListener('DOMContentLoaded', function() {
             row.style.display = (statusMatch && monthMatch) ? '' : 'none';
         });
 
-        
+        // Reset checkboxes after filtering
         checkAll.checked = false;
         emisiCheckboxes.forEach(checkbox => checkbox.checked = false);
         updatePrintButton();
     }
 
-    
+    // Handle status filter change
     statusFilter.addEventListener('change', applyFilters);
 
-    
+    // Handle month filter change
     monthFilter.addEventListener('change', applyFilters);
 
-    
+    // Handle "Check All" functionality
     checkAll.addEventListener('change', function() {
         const visibleCheckboxes = document.querySelectorAll('.emisi-row:not([style*="display: none"]) .emisi-checkbox');
         visibleCheckboxes.forEach(checkbox => {
@@ -162,12 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePrintButton();
     });
 
-    
+    // Handle individual checkbox changes
     emisiCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updatePrintButton);
     });
 
-    
+    // Handle print button
     printButton.addEventListener('click', function() {
         printForm.submit();
     });
@@ -177,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
         printButton.disabled = checkedBoxes.length === 0;
     }
 
-    
+    // Apply filters on page load
     applyFilters();
 });
 </script>
