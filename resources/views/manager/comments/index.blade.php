@@ -59,14 +59,14 @@
                                                 {{ ucfirst($comment->status) }}
                                             </span>
                                         </td>
-                                        <td>{{ $comment->created_at->format('d/m/Y H:i') }}</td>
+                                        <td>{{ $comment->formatted_date }}</td>
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('manager.comments.edit', $comment) }}" 
+                                                <a href="{{ route('manager.comments.edit', $comment->id) }}" 
                                                    class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <form action="{{ route('manager.comments.destroy', $comment) }}" 
+                                                <form action="{{ route('manager.comments.destroy', $comment->id) }}" 
                                                       method="POST" 
                                                       style="display: inline-block;"
                                                       onsubmit="return confirm('Apakah Anda yakin ingin menghapus komentar ini?')">
@@ -87,7 +87,6 @@
                             </tbody>
                         </table>
                     </div>
-                    {{ $comments->links() }}
                 </div>
             </div>
         </div>

@@ -11,7 +11,7 @@ class FaktorEmisiController extends Controller
 {
     public function index()
     {
-        $faktorEmisis = FaktorEmisi::all();
+        $faktorEmisis = DB::select("SELECT * FROM faktor_emisis");
         return view('pages.manager.faktor-emisi.index', compact('faktorEmisis'));
     }
 
@@ -77,8 +77,7 @@ class FaktorEmisiController extends Controller
 
     public function destroy($id)
     {
-        $faktorEmisi = FaktorEmisi::findOrFail($id);
-        $faktorEmisi->delete();
+        DB::delete("DELETE FROM faktor_emisis WHERE id = ?", [$id]);
 
         return redirect()->route('manager.faktor-emisi.index')
             ->with('success', 'Faktor emisi berhasil dihapus');

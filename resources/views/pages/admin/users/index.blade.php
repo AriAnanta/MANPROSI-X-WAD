@@ -52,7 +52,7 @@
                                             {{ $user->email }}
                                         </td>
                                         <td class="text-center text-nowrap">{{ $user->no_telepon }}</td>
-                                        <td class="text-center text-nowrap">{{ $user->created_at->format('d/m/Y') }}</td>
+                                        <td class="text-center text-nowrap">{{ $user->formatted_date }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('admin.users.edit', $user->id) }}" 
                                                class="btn btn-sm btn-warning">
@@ -77,9 +77,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        {{ $users->links() }}
                     </div>
                 </div>
             </div>

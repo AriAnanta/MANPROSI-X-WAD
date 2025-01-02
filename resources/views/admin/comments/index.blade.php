@@ -35,8 +35,8 @@
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td>
-                                            <div class="manager-text" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $comment->manager->nama_manager }}">
-                                                {{ Str::limit($comment->manager->nama_manager, 50) }}
+                                            <div class="manager-text" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $comment->manager_name }}">
+                                                {{ Str::limit($comment->manager_name, 50) }}
                                             </div>
                                         </td>
                                         <td class="text-break">{{ $comment->kode_pembelian_carbon_credit }}</td>
@@ -51,7 +51,7 @@
                                                     {{ Str::limit($comment->admin_reply, 100) }}
                                                 </div>
                                             @else
-                                                <form action="{{ route('admin.comments.reply', $comment) }}" method="POST">
+                                                <form action="{{ route('admin.comments.reply', $comment->id) }}" method="POST">
                                                     @csrf
                                                     <div class="input-group input-group-sm">
                                                         <input type="text" name="reply" class="form-control" 
@@ -68,10 +68,10 @@
                                                 {{ ucfirst($comment->status) }}
                                             </span>
                                         </td>
-                                        <td>{{ $comment->created_at->format('d/m/Y H:i') }}</td>
+                                        <td>{{ $comment->formatted_date }}</td>
                                         <td class="text-center">
                                             @if($comment->status === 'unread')
-                                                <form action="{{ route('admin.comments.mark-as-read', $comment) }}" 
+                                                <form action="{{ route('admin.comments.mark-as-read', $comment->id) }}" 
                                                       method="POST" class="d-inline">
                                                     @csrf
                                                     @method('PATCH')
@@ -90,7 +90,6 @@
                             </tbody>
                         </table>
                     </div>
-                    {{ $comments->links() }}
                 </div>
             </div>
         </div>

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pengguna;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -12,7 +12,14 @@ class UserManagementController extends Controller
 {
     public function index()
     {
-        $users = Pengguna::latest()->paginate(10);
+        $users = DB::select("
+            SELECT *,
+                   DATE_FORMAT(created_at, '%d/%m/%Y') as formatted_date
+            FROM penggunas
+            ORDER BY created_at DESC
+            LIMIT 10
+        ");
+        
         return view('pages.admin.users.index', compact('users'));
     }
 
@@ -30,13 +37,24 @@ class UserManagementController extends Controller
             'no_telepon' => 'required|string|max:15'
         ]);
 
-        Pengguna::create([
-            'kode_user' => 'USR' . Str::random(8),
-            'nama_user' => $request->nama_user,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_telepon' => $request->no_telepon
-        ]);
+        DB::insert("
+            INSERT INTO penggunas (
+                kode_user,
+                nama_user,
+                email,
+                password,
+                no_telepon,
+                created_at,
+                updated_at
+            ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
+            [
+                'USR' . Str::random(8),
+                $request->nama_user,
+                $request->email,
+                Hash::make($request->password),
+                $request->no_telepon
+            ]
+        );
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil ditambahkan');
@@ -44,32 +62,60 @@ class UserManagementController extends Controller
 
     public function edit($id)
     {
-        $user = Pengguna::findOrFail($id);
+        $user = DB::selectOne("
+            SELECT * FROM penggunas WHERE id = ?", 
+            [$id]
+        );
+        
+        if (!$user) {
+            abort(404);
+        }
+
         return view('pages.admin.users.edit', compact('user'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = Pengguna::findOrFail($id);
-
         $request->validate([
             'nama_user' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:penggunas,email,'.$id,
+            'email' => "required|string|email|max:255|unique:penggunas,email,{$id}",
             'no_telepon' => 'required|string|max:15',
             'password' => 'nullable|string|min:8'
         ]);
 
-        $userData = [
-            'nama_user' => $request->nama_user,
-            'email' => $request->email,
-            'no_telepon' => $request->no_telepon
-        ];
-
         if ($request->filled('password')) {
-            $userData['password'] = Hash::make($request->password);
+            DB::update("
+                UPDATE penggunas 
+                SET nama_user = ?,
+                    email = ?,
+                    password = ?,
+                    no_telepon = ?,
+                    updated_at = NOW()
+                WHERE id = ?",
+                [
+                    $request->nama_user,
+                    $request->email,
+                    Hash::make($request->password),
+                    $request->no_telepon,
+                    $id
+                ]
+            );
+        } else {
+            DB::update("
+                UPDATE penggunas 
+                SET nama_user = ?,
+                    email = ?,
+                    no_telepon = ?,
+                    updated_at = NOW()
+                WHERE id = ?",
+                [
+                    $request->nama_user,
+                    $request->email,
+                    $request->no_telepon,
+                    $id
+                ]
+            );
         }
-
-        $user->update($userData);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Data pengguna berhasil diperbarui');
@@ -77,9 +123,8 @@ class UserManagementController extends Controller
 
     public function destroy($id)
     {
-        $user = Pengguna::findOrFail($id);
-        $user->delete();
-
+        DB::delete("DELETE FROM penggunas WHERE id = ?", [$id]);
+        
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil dihapus');
     }

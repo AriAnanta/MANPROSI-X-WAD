@@ -13,24 +13,36 @@ class CommentsController extends Controller
 {
     public function index()
     {
-        $comments = Comment::where('kode_manager', Auth::guard('manager')->user()->kode_manager)
-                         ->with(['pembelianCarbonCredit'])
-                         ->latest()
-                         ->paginate(10);
+        $kodeManager = Auth::guard('manager')->user()->kode_manager;
+        
+        $comments = DB::select("
+            SELECT c.*, 
+                   DATE_FORMAT(c.created_at, '%d/%m/%Y %H:%i') as formatted_date,
+                   pcc.tanggal_pembelian_carbon_credit,
+                   pcc.jumlah_kompensasi, 
+                   pcc.deskripsi
+            FROM comments c
+            LEFT JOIN pembelian_carbon_credits pcc 
+                ON c.kode_pembelian_carbon_credit = pcc.kode_pembelian_carbon_credit
+            WHERE c.kode_manager = ?
+            ORDER BY c.created_at DESC
+            LIMIT 10",
+            [$kodeManager]
+        );
         
         return view('manager.comments.index', compact('comments'));
     }
 
     public function create()
     {
-        $pembelianList = PembelianCarbonCredit::select([
-                            'kode_pembelian_carbon_credit',
-                            'tanggal_pembelian_carbon_credit',
-                            'jumlah_kompensasi',
-                            'deskripsi'
-                        ])
-                        ->orderBy('kode_pembelian_carbon_credit', 'desc')
-                        ->get();
+        $pembelianList = DB::select("
+            SELECT kode_pembelian_carbon_credit,
+                   tanggal_pembelian_carbon_credit,
+                   jumlah_kompensasi,
+                   deskripsi
+            FROM pembelian_carbon_credits
+            ORDER BY kode_pembelian_carbon_credit DESC"
+        );
 
         return view('manager.comments.create', compact('pembelianList'));
     }
@@ -62,8 +74,21 @@ class CommentsController extends Controller
                         ->with('success', 'Komentar berhasil ditambahkan');
     }
 
-    public function edit(Comment $comment)
+    public function edit($commentId)
     {
+        $comment = DB::selectOne("
+            SELECT c.*, pcc.tanggal_pembelian_carbon_credit
+            FROM comments c
+            LEFT JOIN pembelian_carbon_credits pcc 
+                ON c.kode_pembelian_carbon_credit = pcc.kode_pembelian_carbon_credit
+            WHERE c.id = ?", 
+            [$commentId]
+        );
+        
+        if (!$comment) {
+            abort(404);
+        }
+
         return view('manager.comments.edit', compact('comment'));
     }
 
@@ -86,10 +111,15 @@ class CommentsController extends Controller
                         ->with('success', 'Komentar berhasil diperbarui');
     }
 
-    public function destroy(Comment $comment)
+    public function destroy($commentId)
     {
-        $comment->delete();
+        DB::delete("
+            DELETE FROM comments 
+            WHERE id = ?", 
+            [$commentId]
+        );
+        
         return redirect()->route('manager.comments.index')
-                        ->with('success', 'Komentar berhasil dihapus');
+            ->with('success', 'Komentar berhasil dihapus');
     }
 } 

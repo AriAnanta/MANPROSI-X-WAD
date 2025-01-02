@@ -9,13 +9,13 @@
                     <h4 class="mb-0 text-center fw-semibold">Edit Komentar Carbon Credit</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('manager.comments.update', $comment) }}" method="POST">
+                    <form action="{{ route('manager.comments.update', $comment->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
                         <div class="mb-4">
                             <label class="form-label">Pembelian Carbon Credit</label>
-                            <input type="text" class="form-control" value="{{ $comment->pembelianCarbonCredit->kode_pembelian_carbon_credit }} | Tanggal: {{ \Carbon\Carbon::parse($comment->pembelianCarbonCredit->tanggal_pembelian_carbon_credit)->format('d/m/Y') }}" disabled>
+                            <input type="text" class="form-control" value="{{ $comment->kode_pembelian_carbon_credit }} | Tanggal: {{ \Carbon\Carbon::parse($comment->tanggal_pembelian_carbon_credit)->format('d/m/Y') }}" disabled>
                         </div>
 
                         <div class="mb-4">
