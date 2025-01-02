@@ -14,7 +14,7 @@ return new class extends Migration
                 kategori_emisi_karbon VARCHAR(255),
                 sub_kategori VARCHAR(255),
                 nilai_aktivitas DECIMAL(10,2),
-                faktor_emisi DECIMAL(10,4),
+                faktor_emisi DECIMAL(10,2),
                 kadar_emisi_karbon DECIMAL(10,2) GENERATED ALWAYS AS (nilai_aktivitas * faktor_emisi) STORED,
                 deskripsi VARCHAR(255),
                 status VARCHAR(255),

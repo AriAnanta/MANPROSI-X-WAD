@@ -12,7 +12,7 @@ return new class extends Migration
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 kategori_emisi_karbon VARCHAR(255),
                 sub_kategori VARCHAR(255),
-                nilai_faktor DECIMAL(10,4),
+                nilai_faktor DECIMAL(10,2),
                 satuan VARCHAR(50),
                 created_at TIMESTAMP NULL,
                 updated_at TIMESTAMP NULL,

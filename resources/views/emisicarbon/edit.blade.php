@@ -62,7 +62,7 @@
                                        class="form-control @error('nilai_aktivitas') is-invalid @enderror" 
                                        id="nilai_aktivitas" name="nilai_aktivitas" 
                                        value="{{ old('nilai_aktivitas', $emisiCarbon->nilai_aktivitas) }}" required>
-                                <span class="input-group-text" id="satuan-addon">km</span>
+                                <span class="input-group-text" id="satuan-addon"></span>
                             </div>
                             @error('nilai_aktivitas')
                                 <div class="invalid-feedback">{{ $message }}</div>

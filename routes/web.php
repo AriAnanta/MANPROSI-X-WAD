@@ -112,9 +112,6 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::put('/carbon_credit/{kode_pembelian_carbon_credit}/update-status', [PembelianCarbonCreditController::class, 'updateStatus'])
             ->name('carbon_credit.update_status');
 
-        // Route untuk download laporan pembelian carbon credit
-        Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadReport'])
-            ->name('carbon_credit.report');
 
         // Route untuk download laporan emisi karbon
         Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])

@@ -100,15 +100,14 @@
         .content-wrapper {
             padding-bottom: 100px;
         }
-        /* Atur lebar spesifik untuk setiap kolom */
-        table th:nth-child(1), table td:nth-child(1) { width: 50px; }  /* No */
-        table th:nth-child(2), table td:nth-child(2) { width: 120px; } /* Kode Kompensasi */
-        table th:nth-child(3), table td:nth-child(3) { width: 120px; } /* Kode Emisi */
-        table th:nth-child(4), table td:nth-child(4) { width: 100px; } /* Kategori */
-        table th:nth-child(5), table td:nth-child(5) { width: 150px; } /* Sub Kategori */
-        table th:nth-child(6), table td:nth-child(6) { width: 100px; } /* Jumlah */
-        table th:nth-child(7), table td:nth-child(7) { width: 80px; }  /* Tanggal */
-        table th:nth-child(8), table td:nth-child(8) { width: 80px; }  /* Status */
+        table th:nth-child(1), table td:nth-child(1) { width: 20px; }  /* No */
+        table th:nth-child(2), table td:nth-child(2) { width: 80px; } /* Kode Kompensasi */
+        table th:nth-child(3), table td:nth-child(3) { width: 80px; } /* Kode Emisi */
+        table th:nth-child(4), table td:nth-child(4) { width: 80px; } /* Kategori */
+        table th:nth-child(5), table td:nth-child(5) { width: 60px; } /* Sub Kategori */
+        table th:nth-child(6), table td:nth-child(6) { width: 60px; } /* Jumlah */
+        table th:nth-child(7), table td:nth-child(7) { width: 60px; }  /* Tanggal */
+        table th:nth-child(8), table td:nth-child(8) { width: 60px; }  /* Status */
         /* Style untuk teks panjang */
         .long-text {
             white-space: normal;
