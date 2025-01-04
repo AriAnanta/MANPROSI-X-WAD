@@ -10,10 +10,10 @@ use App\Http\Controllers\Manager\FaktorEmisiController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\Manager\CommentsController as ManagerCommentsController;
 use App\Http\Controllers\Admin\CommentsController as AdminCommentsController;
 use App\Http\Controllers\PenyediaCarbonCreditController;
+use Illuminate\Support\Facades\Auth;
 
 // Redirect root URL ke halaman login
 Route::get('/', function () {
@@ -53,72 +53,31 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
         // Rute untuk mengelola emisi karbon
         Route::get('/emisicarbon', [EmisiCarbonController::class, 'adminIndex'])->name('admin.emissions.index');
-        Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit_status');
-        Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update_status');
+        Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit-status');
+        Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update-status');
 
-        // CRUD Pembelian Carbon Credit
-        Route::get('/carbon_credit', [PembelianCarbonCreditController::class, 'index'])
-            ->name('carbon_credit.index');
-            
-        Route::get('/carbon_credit/create', [PembelianCarbonCreditController::class, 'create'])
-            ->name('carbon_credit.create');
-            
-        Route::post('/carbon_credit', [PembelianCarbonCreditController::class, 'store'])
-            ->name('carbon_credit.store');
-            
-        Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit', [PembelianCarbonCreditController::class, 'edit'])
-            ->name('carbon_credit.edit');
-            
-        Route::put('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'update'])
-            ->name('carbon_credit.update');
-            
-        Route::delete('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'destroy'])
-            ->name('carbon_credit.destroy');
+        // CRUD Pembelian Carbon Credit (menghapus duplikasi)
+        Route::resource('carbon_credit', PembelianCarbonCreditController::class)
+            ->except(['show'])
+            ->names([
+                'index' => 'carbon_credit.index',
+                'create' => 'carbon_credit.create', 
+                'store' => 'carbon_credit.store',
+                'edit' => 'carbon_credit.edit',
+                'update' => 'carbon_credit.update',
+                'destroy' => 'carbon_credit.destroy'
+            ]);
 
         // Edit Status Pembelian Carbon Credit
         Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit-status', [PembelianCarbonCreditController::class, 'editStatus'])
             ->name('carbon_credit.edit_status');
-            
         Route::put('/carbon_credit/{kode_pembelian_carbon_credit}/update-status', [PembelianCarbonCreditController::class, 'updateStatus'])
             ->name('carbon_credit.update_status');
 
-        // Route untuk download laporan pembelian carbon credit
-        Route::get('/carbon_credit/report', [PembelianCarbonCreditController::class, 'downloadReport'])
-            ->name('carbon_credit.report');
-
-        // CRUD Pembelian Carbon Credit
-        Route::get('/carbon_credit', [PembelianCarbonCreditController::class, 'index'])
-            ->name('carbon_credit.index');
-            
-        Route::get('/carbon_credit/create', [PembelianCarbonCreditController::class, 'create'])
-            ->name('carbon_credit.create');
-            
-        Route::post('/carbon_credit', [PembelianCarbonCreditController::class, 'store'])
-            ->name('carbon_credit.store');
-            
-        Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit', [PembelianCarbonCreditController::class, 'edit'])
-            ->name('carbon_credit.edit');
-            
-        Route::put('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'update'])
-            ->name('carbon_credit.update');
-            
-        Route::delete('/carbon_credit/{kode_pembelian_carbon_credit}', [PembelianCarbonCreditController::class, 'destroy'])
-            ->name('carbon_credit.destroy');
-
-        // Edit Status Pembelian Carbon Credit
-        Route::get('/carbon_credit/{kode_pembelian_carbon_credit}/edit-status', [PembelianCarbonCreditController::class, 'editStatus'])
-            ->name('carbon_credit.edit_status');
-            
-        Route::put('/carbon_credit/{kode_pembelian_carbon_credit}/update-status', [PembelianCarbonCreditController::class, 'updateStatus'])
-            ->name('carbon_credit.update_status');
-
-
-        // Route untuk download laporan emisi karbon
+        // Route untuk laporan emisi karbon
         Route::get('/emisicarbon/list-report', [EmisiCarbonController::class, 'listReport'])
             ->name('admin.emissions.list_report');
-        Route::get('/admin/emissions/selected-report', [EmisiCarbonController::class, 'downloadSelectedReport'])
-            ->name('admin.emissions.selected.report');
-        Route::get('/admin/emissions/selected-report', [EmisiCarbonController::class, 'downloadSelectedReport'])
+        Route::get('/emissions/selected-report', [EmisiCarbonController::class, 'downloadSelectedReport'])
             ->name('admin.emissions.selected.report');
         Route::get('/emisicarbon/report', [EmisiCarbonController::class, 'downloadReport'])
             ->name('admin.emissions.report');
@@ -134,29 +93,16 @@ Route::middleware(['auth:admin'])->group(function () {
              ->name('admin.comments.show');
     });
 
-    // Route untuk update status emisi karbon
-    Route::get('/admin/emissions/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])
-        ->name('admin.emissions.edit-status');
-    Route::put('/admin/emissions/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])
-        ->name('admin.emissions.update-status');
-
-    // Route untuk menampilkan daftar emisi di admin
-    Route::get('/admin/emissions', [EmisiCarbonController::class, 'adminIndex'])
-        ->name('admin.emissions.index');
-
-    // Route untuk menampilkan daftar notifikasi di admin
     // Route notifikasi
     Route::prefix('notifikasi')->group(function () {
-        Route::get('/', [NotifikasiController::class, 'index'])->name('notifikasi.index'); // Halaman histori notifikasi
-        Route::get('/create', [NotifikasiController::class, 'create'])->name('notifikasi.create'); // Halaman input notifikasi
-        Route::post('/', [NotifikasiController::class, 'store'])->name('notifikasi.store'); // Proses simpan notifikasi
-        Route::get('/{id}/edit', [NotifikasiController::class, 'edit'])->name('notifikasi.edit'); // Halaman edit notifikasi
-        Route::put('/{id}', [NotifikasiController::class, 'update'])->name('notifikasi.update'); // Proses update notifikasi
-        Route::delete('/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy'); // Proses hapus notifikasi
+        Route::get('/', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+        Route::get('/create', [NotifikasiController::class, 'create'])->name('notifikasi.create');
+        Route::post('/', [NotifikasiController::class, 'store'])->name('notifikasi.store');
+        Route::get('/{id}/edit', [NotifikasiController::class, 'edit'])->name('notifikasi.edit');
+        Route::put('/{id}', [NotifikasiController::class, 'update'])->name('notifikasi.update');
+        Route::delete('/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy');
+        Route::get('/report', [NotifikasiController::class, 'report'])->name('notifikasi.report');
     });
-
-    // Add this route with your other notifikasi routes
-    Route::get('/notifikasi/report', [NotifikasiController::class, 'report'])->name('notifikasi.report');
 
     // Notification routes
     Route::post('/notifications/{id}/mark-as-read', function ($id) {
@@ -169,6 +115,7 @@ Route::middleware(['auth:admin'])->group(function () {
         return response()->json(['success' => true]);
     });
 
+    // User Management routes
     Route::resource('users', UserManagementController::class)->names([
         'index' => 'admin.users.index',
         'create' => 'admin.users.create',
@@ -178,12 +125,12 @@ Route::middleware(['auth:admin'])->group(function () {
         'destroy' => 'admin.users.destroy'
     ]);
 
-    Route::get('admin/comments', [AdminCommentsController::class, 'index'])
-         ->name('admin.comments.index');
-    Route::patch('admin/comments/{comment}/mark-as-read', [AdminCommentsController::class, 'markAsRead'])
-         ->name('admin.comments.mark-as-read');
-    Route::post('admin/comments/{comment}/reply', [AdminCommentsController::class, 'reply'])
-         ->name('admin.comments.reply');
+    // Admin Comments routes
+    Route::prefix('admin/comments')->group(function() {
+        Route::get('/', [AdminCommentsController::class, 'index'])->name('admin.comments.index');
+        Route::patch('/{comment}/mark-as-read', [AdminCommentsController::class, 'markAsRead'])->name('admin.comments.mark-as-read');
+        Route::post('/{comment}/reply', [AdminCommentsController::class, 'reply'])->name('admin.comments.reply');
+    });
 });
 
 // Routes untuk Manager yang sudah login
@@ -207,24 +154,21 @@ Route::middleware(['auth:manager'])->group(function () {
         Route::get('/carbon-credit', [PembelianCarbonCreditController::class, 'managerIndex'])
              ->name('manager.carbon_credit.index');
 
-        // Routes untuk Kompensasi Emisi
-        Route::prefix('kompensasi')->group(function () {
-            Route::get('/report', [KompensasiEmisiController::class, 'report'])
-                 ->name('manager.kompensasi.report');
-            
-            Route::get('/', [KompensasiEmisiController::class, 'index'])
-                 ->name('manager.kompensasi.index');
-            Route::post('/', [KompensasiEmisiController::class, 'store'])
-                 ->name('manager.kompensasi.store');
-            Route::get('/{kodeKompensasi}', [KompensasiEmisiController::class, 'show'])
-                 ->name('manager.kompensasi.show');
-            Route::get('/{kodeKompensasi}/edit', [KompensasiEmisiController::class, 'edit'])
-                 ->name('manager.kompensasi.edit');
-            Route::put('/{kodeKompensasi}', [KompensasiEmisiController::class, 'update'])
-                 ->name('manager.kompensasi.update');
-            Route::delete('/{kodeKompensasi}', [KompensasiEmisiController::class, 'destroy'])
-                 ->name('manager.kompensasi.destroy');
-        });
+        // Routes untuk Kompensasi Emisi menggunakan resource
+        Route::resource('kompensasi', KompensasiEmisiController::class)
+            ->except(['create'])
+            ->names([
+                'index' => 'manager.kompensasi.index',
+                'store' => 'manager.kompensasi.store',
+                'show' => 'manager.kompensasi.show',
+                'edit' => 'manager.kompensasi.edit',
+                'update' => 'manager.kompensasi.update',
+                'destroy' => 'manager.kompensasi.destroy'
+            ]);
+
+        // Route tambahan untuk report
+        Route::get('kompensasi/report/download', [KompensasiEmisiController::class, 'report'])
+            ->name('manager.kompensasi.report');
 
         // Route untuk request carbon credit
         Route::post('/notifikasi/request-credit', [NotifikasiController::class, 'requestCredit'])
@@ -253,3 +197,18 @@ Route::middleware(['auth:pengguna,manager,admin'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+// Route untuk mengakses file bukti pembelian
+Route::get('/bukti-pembelian/{filename}', function ($filename) {
+    if (!Auth::guard('admin')->check()) {
+        abort(403);
+    }
+    
+    $path = storage_path('app/public/bukti_pembelian/' . $filename);
+    
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    
+    return response()->file($path);
+})->name('bukti-pembelian.show');

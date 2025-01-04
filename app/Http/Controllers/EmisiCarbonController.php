@@ -312,22 +312,19 @@ class EmisiCarbonController extends Controller
 
     public function downloadReport()
 {
-    // Get approved emissions
     $emisi_carbons = DB::select("
         SELECT 
-            ec.*,
-            p.nama_user 
+        ec.*,
+        p.nama_user 
         FROM emisi_carbons ec
         LEFT JOIN penggunas p ON ec.kode_user = p.kode_user
         WHERE ec.status = 'approved'
         ORDER BY ec.tanggal_emisi DESC"
     );
 
-    // Calculate totals
     $total_pengajuan = count($emisi_carbons);
     $total_emisi = 0;
 
-    // Process categories
     $emisiPerKategori = [];
     foreach ($emisi_carbons as $emisi) {
         $total_emisi += $emisi->kadar_emisi_karbon;
@@ -343,7 +340,6 @@ class EmisiCarbonController extends Controller
         $emisiPerKategori[$emisi->kategori_emisi_karbon]['jumlah_pengajuan']++;
     }
 
-    // Prepare report data
     $reportData = [
         'title' => 'Laporan Emisi Karbon',
         'date' => Carbon::now()->format('d/m/Y'),
@@ -385,7 +381,6 @@ class EmisiCarbonController extends Controller
     
         $placeholders = str_repeat('?,', count($selectedEmisi) - 1) . '?';
         
-        // Updated query to match database schema
         $emisi_carbons = DB::select("
             SELECT 
                 ec.*,
@@ -401,11 +396,9 @@ class EmisiCarbonController extends Controller
             $selectedEmisi
         );
     
-        // Calculate totals
         $total_pengajuan = count($emisi_carbons);
         $total_emisi = 0;
         
-        // Process categories
         $emisiPerKategori = [];
         foreach ($emisi_carbons as $emisi) {
             $total_emisi += $emisi->kadar_emisi_karbon;

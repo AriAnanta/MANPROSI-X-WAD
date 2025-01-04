@@ -53,7 +53,7 @@
                                         </td>
                                         <td class="text-center">
                                             @if($credit->bukti_pembelian)
-                                                <a href="{{ asset('storage/' . $credit->bukti_pembelian) }}" 
+                                                <a href="{{ route('bukti-pembelian.show', basename($credit->bukti_pembelian)) }}" 
                                                    class="btn btn-info btn-sm" 
                                                    target="_blank">
                                                     <i class="fas fa-file-alt"></i>
@@ -280,7 +280,7 @@ var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 document.querySelectorAll('.delete-btn').forEach(button => {
     button.addEventListener('click', function() {
         const id = this.dataset.id;
-        document.getElementById('deleteForm').action = `/admin/carbon-credit/${id}`;
+        document.getElementById('deleteForm').action = `/admin/carbon_credit/${id}`;
     });
 });
 </script>

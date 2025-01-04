@@ -13,14 +13,11 @@ use App\Models\Notification;
 
 class NotifikasiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index(Request $request)
     {
         $query = Notifikasi::with('pengguna');
 
-        // Apply filters
         if ($request->filled('tujuan')) {
             $query->where('kode_user', $request->tujuan);
         }
@@ -37,28 +34,23 @@ class NotifikasiController extends Controller
         return view('notifikasi.index', compact('notifikasi', 'penggunas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+   
     public function create()
     {
-        $users = DB::table('penggunas')->get(); // Ambil semua pengguna dari tabel 'penggunas'
+        $users = DB::table('penggunas')->get(); 
         return view('notifikasi.create', compact('users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
             'kategori_notifikasi' => 'required|string',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
-            'kode_user' => 'required|string', // Bisa berupa kode spesifik atau "all"
+            'kode_user' => 'required|string', 
         ]);
 
-        // Generate kode notifikasi
         $lastNotif = DB::table('notifikasis')
             ->where('kode_notifikasi', 'like', 'NTF-%')
             ->orderBy('kode_notifikasi', 'desc')
@@ -93,9 +85,7 @@ class NotifikasiController extends Controller
         return redirect()->route('notifikasi.index')->with('success', 'Notifikasi berhasil dibuat');
     }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show($id)
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
@@ -113,9 +103,7 @@ class NotifikasiController extends Controller
         return view('notifikasi.show', compact('notifikasi'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    
     public function edit($id)
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
@@ -133,9 +121,7 @@ class NotifikasiController extends Controller
         return view('notifikasi.edit', compact('notifikasi'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -168,9 +154,7 @@ class NotifikasiController extends Controller
         return redirect()->route('notifikasi.index')->with('success', 'Data Notifikasi Diperbarui');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+   
     public function destroy($id)
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
@@ -215,7 +199,7 @@ class NotifikasiController extends Controller
             'catatan' => 'nullable|string'
         ]);
 
-        // Simpan request carbon credit
+       
         $requestId = DB::insert("
             INSERT INTO request_carbon_credits (
                 kategori_emisi, 
@@ -238,7 +222,6 @@ class NotifikasiController extends Controller
             ]
         );
 
-        // Buat notifikasi untuk admin
         DB::insert("
             INSERT INTO notifications (
                 title,

@@ -73,10 +73,10 @@ class DashboardController extends Controller
             [$kodeUser]
         )->total;
 
-        // Data untuk grafik
+      
         $chartData = $this->getChartData(kodeUser: $kodeUser);
 
-        // Ambil data emisi yang masih pending
+        
         $emisiPending = DB::select("
             SELECT kategori_emisi_karbon, kadar_emisi_karbon, tanggal_emisi
             FROM emisi_carbons 
@@ -98,20 +98,19 @@ class DashboardController extends Controller
 
     public function adminDashboard()
     {
-        // Hitung total pengguna
+      
         $totalUsers = DB::selectOne("SELECT COUNT(*) as total FROM penggunas")->total;
-        
-        // Hitung total emisi approved dalam ton CO2e
+      
         $totalEmissionsApprovedTon = DB::selectOne("
             SELECT COALESCE(SUM(kadar_emisi_karbon) / 1000, 0) as total_ton
             FROM emisi_carbons
             WHERE status = 'approved'"
         )->total_ton;
         
-        // Hitung rata-rata emisi per pengguna
+        
         $averageEmissionPerUser = $totalUsers > 0 ? round($totalEmissionsApprovedTon / $totalUsers, 2) : 0;
         
-        // Ambil data emisi terbaru dengan relasi pengguna
+      
         $recentEmissions = DB::select("
             SELECT e.*, p.nama_user
             FROM emisi_carbons e
@@ -120,8 +119,7 @@ class DashboardController extends Controller
             ORDER BY e.created_at DESC
             LIMIT 5"
         );
-        
-        // Siapkan data untuk grafik
+      
         $chartData = $this->prepareChartData();
         
         return view('pages.admin.dashboard', compact(
@@ -177,10 +175,10 @@ class DashboardController extends Controller
 
     public function managerDashboard()
     {
-        // Hitung total pengguna
+      
         $totalPengguna = DB::selectOne("SELECT COUNT(*) as total FROM penggunas")->total;
         
-        // Hitung total emisi per tahun
+       
         $totalEmisiPerTahun = DB::selectOne("
             SELECT COALESCE(SUM(kadar_emisi_karbon), 0) as total
             FROM emisi_carbons

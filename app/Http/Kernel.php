@@ -17,4 +17,11 @@ class Kernel extends HttpKernel
         // ... middleware lainnya
         'role' => \App\Http\Middleware\CheckRole::class,
     ];
+
+    protected $middlewareGroups = [
+        'web' => [
+            // ... middleware lainnya
+            \App\Http\Middleware\HandleFileAccess::class,
+        ],
+    ];
 } 

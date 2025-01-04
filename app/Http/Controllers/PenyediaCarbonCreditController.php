@@ -27,7 +27,7 @@ class PenyediaCarbonCreditController extends Controller
         ]);
 
         try {
-            // Generate kode penyedia
+           
             $lastKode = DB::selectOne("
                 SELECT kode_penyedia 
                 FROM penyedia_carbon_credits 

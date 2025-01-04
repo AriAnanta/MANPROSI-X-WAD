@@ -97,7 +97,7 @@
                                                 <option value="{{ $emisi->kode_emisi_karbon }}">
                                                     {{ $emisi->kategori_emisi_karbon }} - 
                                                     {{ $emisi->sub_kategori }} 
-                                                    (Sisa: {{ number_format($emisi->sisa_emisi_ton, 2) }} ton CO₂e)
+                                                    (Sisa: {{ number_format($emisi->sisa_emisi_ton, 4) }} ton CO₂e)
                                                 </option>
                                             @endif
                                         @endforeach
@@ -250,7 +250,7 @@
                                             title="{{ ucfirst($kompensasi->sub_kategori) }}">
                                             {{ ucfirst($kompensasi->sub_kategori) }}
                                         </td>
-                                        <td class="text-end text-nowrap">{{ number_format($kompensasi->jumlah_ton, 2) }}</td>
+                                        <td class="text-end text-nowrap">{{ number_format($kompensasi->jumlah_ton, 4) }}</td>
                                         <td class="text-center text-nowrap">{{ date('d/m/Y', strtotime($kompensasi->tanggal_kompensasi)) }}</td>
                                         <td class="text-center">
                                             <span class="badge bg-{{ $kompensasi->status === 'approved' || $kompensasi->status === 'completed' ? 'success' : 'warning' }}">
@@ -259,16 +259,16 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group" role="group">
-                                                <a href="{{ route('manager.kompensasi.show', $kompensasi->kode_kompensasi) }}" 
+                                                <a href="{{ route('manager.kompensasi.show', ['kompensasi' => $kompensasi->kode_kompensasi]) }}" 
                                                    class="btn btn-info btn-sm" title="Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 @if($kompensasi->status === 'pending')
-                                                    <a href="{{ route('manager.kompensasi.edit', $kompensasi->kode_kompensasi) }}" 
+                                                    <a href="{{ route('manager.kompensasi.edit', ['kompensasi' => $kompensasi->kode_kompensasi]) }}" 
                                                        class="btn btn-warning btn-sm" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    <form action="{{ route('manager.kompensasi.destroy', $kompensasi->kode_kompensasi) }}" 
+                                                    <form action="{{ route('manager.kompensasi.destroy', ['kompensasi' => $kompensasi->kode_kompensasi]) }}" 
                                                           method="POST" class="d-inline"
                                                           onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                                         @csrf

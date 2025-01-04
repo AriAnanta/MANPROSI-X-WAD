@@ -9,13 +9,13 @@ use App\Models\KompensasiEmisi;
 use App\Models\EmisiCarbon;
 use App\Notifications\NewKompensasiNotification;
 use App\Models\Admin;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KompensasiEmisiController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil data emisi yang sudah diapprove
+     
         $emisiApproved = DB::select("
             SELECT 
                 e.kode_emisi_karbon,
@@ -45,7 +45,7 @@ class KompensasiEmisiController extends Controller
                 e.tanggal_emisi
         ");
 
-        // Modify riwayat kompensasi query to include filters
+     
         $query = "
             SELECT 
                 k.kode_kompensasi,
@@ -63,7 +63,7 @@ class KompensasiEmisiController extends Controller
         
         $params = [];
 
-        // Add search filter
+       
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query .= " AND (
@@ -76,7 +76,7 @@ class KompensasiEmisiController extends Controller
             $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam]);
         }
 
-        // Add date range filter
+       
         if ($request->has('start_date') && !empty($request->start_date)) {
             $query .= " AND DATE(k.tanggal_kompensasi) >= ?";
             $params[] = $request->start_date;
@@ -86,24 +86,21 @@ class KompensasiEmisiController extends Controller
             $params[] = $request->end_date;
         }
 
-        // Add status filter
         if ($request->has('status') && !empty($request->status)) {
             $query .= " AND k.status = ?";
             $params[] = $request->status;
         }
 
-        // Add kategori filter
         if ($request->has('kategori') && !empty($request->kategori)) {
             $query .= " AND e.kategori_emisi_karbon = ?";
             $params[] = $request->kategori;
         }
 
-        // Add ordering
         $query .= " ORDER BY k.created_at DESC";
 
         $riwayatKompensasi = DB::select($query, $params);
 
-        // Ambil data kategori emisi untuk tabel
+      
         $kategoriEmisi = collect($emisiApproved)->groupBy('kategori_emisi_karbon')
             ->map(function($items) {
                 return [
@@ -114,7 +111,7 @@ class KompensasiEmisiController extends Controller
                 ];
             });
 
-        // Get unique categories for filter dropdown
+        
         $kategoris = DB::select("
             SELECT DISTINCT kategori_emisi_karbon 
             FROM emisi_carbons 
@@ -140,10 +137,8 @@ class KompensasiEmisiController extends Controller
         try {
             DB::beginTransaction();
 
-            // Konversi ton ke kg untuk penyimpanan
             $jumlahKompensasiKg = $request->jumlah_kompensasi * 1000;
 
-            // Cek sisa emisi yang belum terkompensasi untuk emisi karbon tertentu
             $emisiData = EmisiCarbon::where('kode_emisi_karbon', $request->kode_emisi_karbon)
                 ->where('status', 'approved')
                 ->first();
@@ -158,7 +153,7 @@ class KompensasiEmisiController extends Controller
 
             $sisaEmisiKg = $emisiData->kadar_emisi_karbon - $totalKompensasi;
 
-            // Generate kode kompensasi
+            
             $lastKode = KompensasiEmisi::orderBy('id', 'desc')->first();
             $kodeNumber = 1;
             if ($lastKode) {
@@ -166,7 +161,7 @@ class KompensasiEmisiController extends Controller
             }
             $kodeKompensasi = 'KMP-' . str_pad($kodeNumber, 6, '0', STR_PAD_LEFT);
 
-            // Insert kompensasi menggunakan DB::insert
+            
             $inserted = DB::insert("
                 INSERT INTO kompensasi_emisi (
                     kode_kompensasi, kode_emisi_karbon, jumlah_kompensasi,
@@ -186,11 +181,6 @@ class KompensasiEmisiController extends Controller
                 return back()->with('error', 'Gagal menyimpan data kompensasi');
             }
             
-            // // Send notification to all admins
-            // $admins = Admin::all();
-            // foreach ($admins as $admin) {
-            //     $admin->notify(new NewKompensasiNotification($kompensasi));
-            // }
 
             DB::commit();
             return redirect()->route('manager.kompensasi.index')
@@ -234,7 +224,7 @@ class KompensasiEmisiController extends Controller
         try {
             DB::beginTransaction();
 
-            // Konversi ton ke kg untuk penyimpanan
+            
             $jumlahKompensasiKg = $request->jumlah_kompensasi * 1000;
 
             $updated = DB::update("
@@ -301,7 +291,7 @@ class KompensasiEmisiController extends Controller
 
     public function report()
     {
-        // Get the currently logged in manager
+    
         $kompensasi = DB::select("
             SELECT 
                 k.kode_kompensasi,

@@ -49,7 +49,7 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route('admin.emissions.edit_status', $emisi->kode_emisi_karbon) }}" 
+                                            <a href="{{ route('admin.emissions.edit-status', $emisi->kode_emisi_karbon) }}" 
                                                class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i> Edit Status
                                             </a>

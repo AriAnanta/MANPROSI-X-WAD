@@ -12,7 +12,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('manager.kompensasi.update', $kompensasi->kode_kompensasi) }}" method="POST">
+                    <form action="{{ route('manager.kompensasi.update', ['kompensasi' => $kompensasi->kode_kompensasi]) }}" method="POST">
                         @csrf
                         @method('PUT')
                         

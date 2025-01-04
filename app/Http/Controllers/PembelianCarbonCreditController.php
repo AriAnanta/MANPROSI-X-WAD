@@ -16,9 +16,6 @@ use App\Models\PenyediaCarbonCredit;
 
 class PembelianCarbonCreditController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
@@ -47,19 +44,14 @@ class PembelianCarbonCreditController extends Controller
         return view('carbon_credit.index', compact('carbon_credit'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        // Get kompensasi yang pending
         $kompensasiPending = DB::select("
             SELECT * FROM kompensasi_emisi 
             WHERE status = 'pending' 
             ORDER BY created_at DESC"
         );
 
-        // Get penyedia carbon credit yang aktif
         $penyediaList = DB::select("
             SELECT * FROM penyedia_carbon_credits 
             WHERE is_active = true 
@@ -68,10 +60,6 @@ class PembelianCarbonCreditController extends Controller
 
         return view('carbon_credit.create', compact('kompensasiPending', 'penyediaList'));
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -88,7 +76,6 @@ class PembelianCarbonCreditController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generate kode pembelian
             $lastKode = DB::selectOne("
                 SELECT kode_pembelian_carbon_credit 
                 FROM pembelian_carbon_credits 
@@ -102,11 +89,13 @@ class PembelianCarbonCreditController extends Controller
             }
             $kodePembelian = 'PCC-' . str_pad($kodeNumber, 4, '0', STR_PAD_LEFT);
 
-            // Upload file
-            $fileName = $kodePembelian . '.' . $request->file('bukti_pembelian')->getClientOriginalExtension();
-            $request->file('bukti_pembelian')->storeAs('public/bukti_pembelian', $fileName);
+        
+            if ($request->hasFile('bukti_pembelian')) {
+                $fileName = $kodePembelian . '.' . $request->file('bukti_pembelian')->getClientOriginalExtension();
+                $path = 'bukti_pembelian/' . $fileName; 
+                $request->file('bukti_pembelian')->storeAs('public/bukti_pembelian', $fileName);
+            }
 
-            // Insert data
             $inserted = DB::insert("
                 INSERT INTO pembelian_carbon_credits (
                     kode_pembelian_carbon_credit,
@@ -130,7 +119,7 @@ class PembelianCarbonCreditController extends Controller
                     $validated['harga_per_ton'],
                     $validated['total_harga'],
                     $validated['tanggal_pembelian_carbon_credit'],
-                    $fileName,
+                    $path,
                     $validated['deskripsi'],
                     auth()->guard('admin')->user()->kode_admin
                 ]
@@ -140,7 +129,7 @@ class PembelianCarbonCreditController extends Controller
                 throw new \Exception('Gagal menyimpan data pembelian');
             }
 
-            // Update status kompensasi
+           
             $updated = DB::update("
                 UPDATE kompensasi_emisi 
                 SET status = 'completed', 
@@ -170,22 +159,17 @@ class PembelianCarbonCreditController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(PembelianCarbonCredit $pembelianCarbonCredit)
     {
         return view('carbon_credit.create', compact('carbon_credit'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit($kode_pembelian_carbon_credit)
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;    
         
-        // Ubah query untuk include data penyedia
+     
         $carbon_credit = DB::selectOne("
             SELECT pc.*, 
                    pcc.nama_penyedia,
@@ -202,14 +186,14 @@ class PembelianCarbonCreditController extends Controller
             abort(404);
         }
 
-        // Tambahkan properti penyediaCarbonCredit sebagai objek
+        
         $carbon_credit->penyediaCarbonCredit = (object)[
             'nama_penyedia' => $carbon_credit->nama_penyedia,
             'mata_uang' => $carbon_credit->mata_uang,
             'harga_per_ton' => $carbon_credit->penyedia_harga_per_ton
         ];
 
-        // Get penyedia carbon credit yang aktif
+       
         $penyediaList = DB::select("
             SELECT * FROM penyedia_carbon_credits 
             WHERE is_active = true 
@@ -219,9 +203,6 @@ class PembelianCarbonCreditController extends Controller
         return view('carbon_credit.edit', compact('carbon_credit', 'penyediaList'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $kode_pembelian_carbon_credit)
     {
         $validated = $request->validate([
@@ -237,7 +218,7 @@ class PembelianCarbonCreditController extends Controller
         try {
             DB::beginTransaction();
 
-            // Ambil data existing
+           
             $carbon_credit = DB::selectOne("
                 SELECT * FROM pembelian_carbon_credits 
                 WHERE kode_pembelian_carbon_credit = ? 
@@ -249,21 +230,20 @@ class PembelianCarbonCreditController extends Controller
                 abort(404);
             }
 
-            // Handle file upload jika ada file baru
             $buktiPembelianPath = $carbon_credit->bukti_pembelian;
             if ($request->hasFile('bukti_pembelian')) {
-                // Hapus file lama jika ada
+                
                 if ($carbon_credit->bukti_pembelian) {
                     Storage::disk('public')->delete($carbon_credit->bukti_pembelian);
                 }
 
-                // Upload file baru
-                $file = $request->file('bukti_pembelian');
-                $fileName = $kode_pembelian_carbon_credit . '-' . time() . '.' . $file->getClientOriginalExtension();
-                $buktiPembelianPath = $file->storeAs('bukti-pembelian', $fileName, 'public');
+                
+                $fileName = $kode_pembelian_carbon_credit . '.' . $request->file('bukti_pembelian')->getClientOriginalExtension();
+                $buktiPembelianPath = 'bukti_pembelian/' . $fileName; // Simpan path relatif
+                $request->file('bukti_pembelian')->storeAs('public/bukti_pembelian', $fileName);
             }
 
-            // Update data pembelian
+           
             DB::update("
                 UPDATE pembelian_carbon_credits 
                 SET tanggal_pembelian_carbon_credit = ?,
@@ -299,44 +279,81 @@ class PembelianCarbonCreditController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+ 
     public function destroy($kode_pembelian_carbon_credit)
     {
-        $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
+        try {
+            DB::beginTransaction();
+            
+            $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
 
-        // Ambil data existing
-        $carbon_credit = DB::selectOne("
-            SELECT * FROM pembelian_carbon_credits 
-            WHERE kode_pembelian_carbon_credit = ? 
-            AND kode_admin = ?", 
-            [$kode_pembelian_carbon_credit, $kodeAdmin]
-        );
+          
+            $carbon_credit = DB::selectOne("
+                SELECT pc.*, ke.status as status_kompensasi 
+                FROM pembelian_carbon_credits pc
+                JOIN kompensasi_emisi ke ON pc.kode_kompensasi = ke.kode_kompensasi
+                WHERE pc.kode_pembelian_carbon_credit = ? 
+                AND pc.kode_admin = ?", 
+                [$kode_pembelian_carbon_credit, $kodeAdmin]
+            );
 
-        if (!$carbon_credit) {
-            abort(404);
+            if (!$carbon_credit) {
+                return back()->with('error', 'Data tidak ditemukan');
+            }
+
+           
+            $kode_kompensasi = $carbon_credit->kode_kompensasi;
+
+            
+            if ($carbon_credit->bukti_pembelian) {
+                Storage::disk('public')->delete($carbon_credit->bukti_pembelian);
+            }
+
+            $deleted = DB::delete("
+                DELETE FROM pembelian_carbon_credits 
+                WHERE kode_pembelian_carbon_credit = ? 
+                AND kode_admin = ?",
+                [$kode_pembelian_carbon_credit, $kodeAdmin]
+            );
+
+            if (!$deleted) {
+                throw new \Exception('Gagal menghapus data pembelian');
+            }
+
+            $updated = DB::update("
+                UPDATE kompensasi_emisi 
+                SET status = 'pending',
+                    updated_at = NOW()
+                WHERE kode_kompensasi = ? 
+                AND status = 'completed'", 
+                [$kode_kompensasi]
+            );
+
+            
+            Log::info('Update Kompensasi Status', [
+                'kode_kompensasi' => $kode_kompensasi,
+                'rows_affected' => $updated,
+                'current_status' => $carbon_credit->status_kompensasi
+            ]);
+
+            if (!$updated) {
+                throw new \Exception('Gagal mengupdate status kompensasi');
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('carbon_credit.index')
+                ->with('success', 'Data Pembelian Carbon Credit berhasil dihapus dan status kompensasi diubah menjadi pending');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error in destroy method', [
+                'error' => $e->getMessage(),
+                'kode_pembelian' => $kode_pembelian_carbon_credit
+            ]);
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Hapus file bukti pembelian jika ada
-        if ($carbon_credit->bukti_pembelian) {
-            Storage::disk('public')->delete($carbon_credit->bukti_pembelian);
-        }
-
-        $deleted = DB::delete("
-            DELETE FROM pembelian_carbon_credits 
-            WHERE kode_pembelian_carbon_credit = ? 
-            AND kode_admin = ?",
-            [$kode_pembelian_carbon_credit, $kodeAdmin]
-        );
-
-        if (!$deleted) {
-            abort(404);
-        }
-
-        return redirect()
-            ->route('carbon_credit.index')
-            ->with('success', 'Data Pembelian Carbon Credit Dihapus');
     }
 
     public function editStatus($kode_pembelian_carbon_credit)
@@ -377,7 +394,7 @@ class PembelianCarbonCreditController extends Controller
     {
         $kodeAdmin = Auth::guard('admin')->user()->kode_admin;
         
-        // Ambil data pembelian carbon credit
+        
         $carbon_credits = DB::select("
             SELECT pcc.*, a.nama_admin 
             FROM pembelian_carbon_credits pcc
@@ -387,7 +404,6 @@ class PembelianCarbonCreditController extends Controller
             [$kodeAdmin]
         );
 
-        // Hitung total pembelian
         $totalPembelian = DB::selectOne("
             SELECT COALESCE(SUM(jumlah_kompensasi), 0) as total
             FROM pembelian_carbon_credits
@@ -395,7 +411,6 @@ class PembelianCarbonCreditController extends Controller
             [$kodeAdmin]
         )->total;
 
-        // Data untuk header laporan
         $reportData = [
             'title' => 'Laporan Pembelian Carbon Credit',
             'date' => Carbon::now()->format('d/m/Y'),
@@ -404,13 +419,11 @@ class PembelianCarbonCreditController extends Controller
             'total_pembelian' => $totalPembelian
         ];
 
-        // Generate PDF
+     
         $pdf = PDF::loadView('carbon_credit.report', $reportData);
-        
-        // Set paper size ke A4
+      
         $pdf->setPaper('A4', 'portrait');
 
-        // Download PDF dengan nama yang dinamis
         return $pdf->download('laporan-pembelian-carbon-credit-'.Carbon::now()->format('d-m-Y').'.pdf');
     }
 
@@ -454,7 +467,7 @@ class PembelianCarbonCreditController extends Controller
         $placeholders = str_repeat('?,', count($selectedCredit) - 1) . '?';
         $params = $selectedCredit;
         
-        // Base query
+        
         $query = "
             SELECT pcc.*, a.nama_admin 
             FROM pembelian_carbon_credits pcc
@@ -462,7 +475,6 @@ class PembelianCarbonCreditController extends Controller
             WHERE pcc.kode_pembelian_carbon_credit IN ($placeholders)
         ";
 
-        // Add date range if provided
         if ($startDate && $endDate) {
             $query .= " AND pcc.tanggal_pembelian_carbon_credit BETWEEN ? AND ?";
             $params[] = $startDate;
@@ -471,10 +483,10 @@ class PembelianCarbonCreditController extends Controller
 
         $query .= " ORDER BY pcc.tanggal_pembelian_carbon_credit DESC";
         
-        // Get selected data
+     
         $carbon_credits = DB::select($query, $params);
 
-        // Calculate total
+      
         $totalPembelian = DB::selectOne("
             SELECT COALESCE(SUM(jumlah_kompensasi), 0) as total
             FROM pembelian_carbon_credits
@@ -497,10 +509,10 @@ class PembelianCarbonCreditController extends Controller
         return $pdf->download('laporan-pembelian-carbon-credit-'.Carbon::now()->format('d-m-Y').'.pdf');
     }
 
-    // Method untuk manager
+   
     public function managerIndex()
     {
-        // Ambil semua data pembelian carbon credit dengan relasi yang diperlukan
+  
         $carbonCredits = DB::select("
             SELECT 
                 pcc.kode_pembelian_carbon_credit,
@@ -518,7 +530,7 @@ class PembelianCarbonCreditController extends Controller
             ORDER BY pcc.tanggal_pembelian_carbon_credit DESC
         ");
 
-        // Transform data untuk view
+     
         $carbonCredits = collect($carbonCredits)->map(function ($credit) {
             return [
                 'kode_pembelian' => $credit->kode_pembelian_carbon_credit,
@@ -533,7 +545,7 @@ class PembelianCarbonCreditController extends Controller
             ];
         });
 
-        // Hitung summary
+        
         $summary = [
             'total_pembelian' => $carbonCredits->count(),
             'total_kompensasi' => $carbonCredits->sum('jumlah_kompensasi'),

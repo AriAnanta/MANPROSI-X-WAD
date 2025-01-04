@@ -32,7 +32,7 @@ return new class extends Migration
             )
         ");
 
-        // Membuat trigger untuk mengisi faktor_emisi secara otomatis
+        
         DB::unprepared("
             CREATE TRIGGER set_faktor_emisi_before_insert 
             BEFORE INSERT ON emisi_carbons
