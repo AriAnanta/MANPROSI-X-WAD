@@ -42,7 +42,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Add composer for admin layout
         View::composer('layouts.admin', function ($view) {
-            // Get emissions notifications
             $emissionNotifications = DB::table('emisi_carbons')
                 ->join('penggunas', 'emisi_carbons.kode_user', '=', 'penggunas.kode_user')
                 ->select(
@@ -54,7 +53,6 @@ class AppServiceProvider extends ServiceProvider
                 )
                 ->orderBy('emisi_carbons.created_at', 'desc');
 
-            // Get compensation notifications
             $compensationNotifications = DB::table('kompensasi_emisi')
                 ->select(
                     'kompensasi_emisi.created_at',
@@ -65,7 +63,6 @@ class AppServiceProvider extends ServiceProvider
                 )
                 ->orderBy('kompensasi_emisi.created_at', 'desc');
 
-            // Combine and get latest 10
             $notifications = $emissionNotifications->union($compensationNotifications)
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
