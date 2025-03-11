@@ -6,7 +6,7 @@ use App\Models\Comment;
 use App\Models\EmisiCarbon;
 use Illuminate\Http\Request;
 
-class CommentController extends Controller
+class CommentsController extends Controller
 {
     public function store(Request $request, $id)
     {

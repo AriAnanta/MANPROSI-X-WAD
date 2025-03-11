@@ -56,7 +56,7 @@ Route::middleware(['auth:admin'])->group(function () {
         Route::get('/emisicarbon/{kode_emisi_karbon}/edit-status', [EmisiCarbonController::class, 'editStatus'])->name('admin.emissions.edit-status');
         Route::put('/emisicarbon/{kode_emisi_karbon}/update-status', [EmisiCarbonController::class, 'updateStatus'])->name('admin.emissions.update-status');
 
-        // CRUD Pembelian Carbon Credit (menghapus duplikasi)
+        // CRUD Pembelian Carbon Credit
         Route::resource('carbon_credit', PembelianCarbonCreditController::class)
             ->except(['show'])
             ->names([

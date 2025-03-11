@@ -28,7 +28,7 @@ class PembelianCarbonCreditController extends Controller
             FROM pembelian_carbon_credits pc
             JOIN penyedia_carbon_credits pcc ON pc.kode_penyedia = pcc.kode_penyedia
             WHERE pc.kode_admin = ?
-            ORDER BY pc.created_at DESC",
+            ORDER BY pc.tanggal_pembelian_carbon_credit DESC",
             [$kodeAdmin]
         );
 

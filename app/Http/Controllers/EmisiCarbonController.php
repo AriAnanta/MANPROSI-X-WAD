@@ -70,7 +70,7 @@ class EmisiCarbonController extends Controller
                 ON ec.kategori_emisi_karbon = fe.kategori_emisi_karbon 
                 AND ec.sub_kategori = fe.sub_kategori
             WHERE ec.kode_user = ? 
-            ORDER BY ec.created_at DESC
+            ORDER BY ec.tanggal_emisi DESC
             LIMIT 10", 
             [$kodeUser]
         );
@@ -148,20 +148,6 @@ class EmisiCarbonController extends Controller
                     $request->tanggal_emisi
                 ]
             );
-
-            // // Send notification to all admins
-            // $admins = Admin::all();
-            // foreach ($admins as $admin) {
-            //     $admin->notify(new NewEmisiNotification([
-            //         'type' => 'emisi',
-            //         'kode_emisi' => $emisiData->kode_emisi_karbon,
-            //         'kategori' => $emisiData->kategori_emisi_karbon,
-            //         'jumlah_ton' => number_format($emisiData->kadar_emisi_karbon / 1000, 3),
-            //         'message' => 'Emisi karbon baru memerlukan persetujuan',
-            //         'url' => route('admin.emissions.edit_status', $emisiData->kode_emisi_karbon)
-            //     ]));
-            // }
-
             DB::commit();
             return redirect()->route('emisicarbon.index')
                            ->with('success', 'Data emisi karbon berhasil disimpan dan menunggu persetujuan');
@@ -303,7 +289,7 @@ class EmisiCarbonController extends Controller
             LEFT JOIN faktor_emisis fe 
                 ON ec.kategori_emisi_karbon = fe.kategori_emisi_karbon 
                 AND ec.sub_kategori = fe.sub_kategori
-            ORDER BY ec.created_at DESC 
+            ORDER BY ec.tanggal_emisi DESC 
             LIMIT 10"
         );
         

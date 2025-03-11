@@ -92,7 +92,10 @@ class NotifikasiController extends Controller
 
         $notifikasi = DB::selectOne("
             SELECT * FROM notifikasis 
-            WHERE id = ? AND kode_admin = ?",
+            WHERE id = ? AND kode_admin = ?
+            ORDER BY tanggal DESC"
+            ,
+            
             [$id, $kodeAdmin]
         );
 
