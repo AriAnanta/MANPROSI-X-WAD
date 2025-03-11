@@ -371,7 +371,7 @@ function toggleFilter() {
     }
 }
 
-// Show filter form if there are active filters
+// Show filter form (kalau nyala)
 document.addEventListener('DOMContentLoaded', function() {
     const hasFilters = {{ request()->anyFilled(['search', 'start_date', 'end_date', 'status', 'kategori']) ? 'true' : 'false' }};
     if (hasFilters) {
@@ -379,16 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Inisialisasi tooltip
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl, {
-        template: '<div class="tooltip tooltip-large" role="tooltip">' +
-                 '<div class="tooltip-arrow"></div>' +
-                 '<div class="tooltip-inner"></div>' +
-                 '</div>'
-    });
-});
+
 </script>
 @endpush
 @endsection 

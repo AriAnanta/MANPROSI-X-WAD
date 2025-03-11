@@ -154,7 +154,7 @@ Route::middleware(['auth:manager'])->group(function () {
         Route::get('/carbon-credit', [PembelianCarbonCreditController::class, 'managerIndex'])
              ->name('manager.carbon_credit.index');
 
-        // Routes untuk Kompensasi Emisi menggunakan resource
+        // Routes untuk Kompensasi Emisi 
         Route::resource('kompensasi', KompensasiEmisiController::class)
             ->except(['create'])
             ->names([
@@ -166,7 +166,7 @@ Route::middleware(['auth:manager'])->group(function () {
                 'destroy' => 'manager.kompensasi.destroy'
             ]);
 
-        // Route tambahan untuk report
+        // Route report kompensasi
         Route::get('kompensasi/report/download', [KompensasiEmisiController::class, 'report'])
             ->name('manager.kompensasi.report');
 
